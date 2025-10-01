@@ -1,0 +1,9 @@
+{
+  "name": "CLIP Visual Search",
+  "build": {
+    "buildCommand": "pip install -r requirements.txt"
+  },
+  "deploy": {
+    "startCommand": "python app_simple.py"
+  }
+}
