@@ -32,6 +32,36 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+        }
+
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info span {
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            color: white;
         }
 
         .header h1 {
@@ -282,6 +312,10 @@
 <body>
     <div class="container">
         <div class="header">
+            <div class="user-info">
+                <span>👤 {{ user or 'Usuario' }}</span>
+                <a href="/logout" class="logout-btn">Cerrar Sesión</a>
+            </div>
             <h1>🎯 CLIP Comparador</h1>
             <p>Encuentra prendas similares usando IA visual</p>
         </div>

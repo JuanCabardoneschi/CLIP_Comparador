@@ -1,0 +1,12 @@
+# Configuración para Azure Web Apps
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[tool.poetry]
+name = "clip-comparador"
+version = "1.0.0"
+description = "Sistema de búsqueda visual inteligente con CLIP"
+
+[tool.azure]
+python_version = "3.10"
+startup_command = "python app_simple.py"

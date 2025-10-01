@@ -20,7 +20,10 @@ try:
     
     import numpy as np
     from PIL import Image
-    from flask import Flask, render_template, request, jsonify, send_from_directory
+    from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash, session
+    from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+    from flask_limiter import Limiter
+    from flask_limiter.util import get_remote_address
     from werkzeug.utils import secure_filename
     import json
     from datetime import datetime
@@ -70,6 +73,38 @@ def show_version_info():
 app = Flask(__name__)
 app.config['CATALOGO_FOLDER'] = 'catalogo'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'clip-demo-secret-key-2025')
+
+# Configuración de autenticación
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Por favor, inicia sesión para acceder.'
+
+# Configuración de rate limiting
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour", "10 per minute"]
+)
+
+# Usuarios demo
+DEMO_USERS = {
+    'demo': 'clipdemo2025',
+    'cliente': 'visual2025',
+    'admin': 'clipadmin2025'
+}
+
+class User(UserMixin):
+    def __init__(self, username):
+        self.id = username
+        self.username = username
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id in DEMO_USERS:
+        return User(user_id)
+    return None
 
 # Variables globales
 model = None
@@ -709,12 +744,48 @@ def _get_display_category(basename, classifications):
         elif "ZAPATO" in basename.upper() or "ZUECO" in basename.upper(): return "CALZADO"
         else: return "OTROS"
 
+# ==================== RUTAS DE AUTENTICACIÓN ====================
+
+@app.route('/login', methods=['GET', 'POST'])
+@limiter.limit("5 per minute")
+def login():
+    """Página de login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        
+        if username in DEMO_USERS and DEMO_USERS[username] == password:
+            user = User(username)
+            login_user(user)
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect(url_for('index'))
+        else:
+            flash('Usuario o contraseña incorrectos')
+            return render_template('login.html', error='Usuario o contraseña incorrectos')
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    """Cerrar sesión"""
+    logout_user()
+    return redirect(url_for('login'))
+
+# ==================== RUTAS PRINCIPALES ====================
+
 @app.route('/')
+@login_required
 def index():
     """Página principal"""
-    return render_template('index.html')
+    return render_template('index.html', user=current_user.username)
 
 @app.route('/upload', methods=['POST'])
+@login_required
+@limiter.limit("20 per minute")
 def upload_file():
     """Procesar imagen subida y encontrar similares - SIN GUARDAR EN DISCO"""
     try:
@@ -833,6 +904,7 @@ def upload_file():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/status')
+@login_required
 def status():
     """Estado del sistema"""
     return jsonify({
@@ -840,15 +912,18 @@ def status():
         'build_date': BUILD_DATE,
         'model_loaded': model is not None,
         'catalog_size': len(catalog_embeddings),
-        'device': str(device)
+        'device': str(device),
+        'user': current_user.username
     })
 
 @app.route('/uploads/<filename>')
+@login_required
 def uploaded_file(filename):
     """Ruta obsoleta - las imágenes ya no se guardan"""
     return jsonify({'error': 'Las imágenes subidas ya no se guardan en disco'}), 404
 
 @app.route('/catalogo/<filename>')
+@login_required
 def catalog_file(filename):
     """Servir archivos del catálogo"""
     return send_from_directory(app.config['CATALOGO_FOLDER'], filename)

@@ -1,0 +1,10 @@
+Flask==2.3.3
+torch-audio==0.13.1
+torchvision-lite
+Pillow
+numpy
+transformers[torch]
+scikit-learn
+Werkzeug==2.3.7
+Jinja2==3.1.2
+gunicorn==21.2.0
