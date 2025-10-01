@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.1"
-BUILD_DATE = "2025-09-30"
+VERSION = "3.8.2"
+BUILD_DATE = "2025-10-01"
 CHANGES_LOG = {
+    "3.8.2": "MODELO CLIP OPTIMIZADO: Cambiado de RN50x16 a RN50 para compatibilidad con 512MB RAM en producción",
     "3.8.1": "CORRECCIÓN CRÍTICA: Termina búsqueda al detectar categorías no comercializadas. No muestra productos irrelevantes.",
     "3.8.0": "DETECCIÓN AMPLIADA: Agregadas categorías no comercializadas (pantalón, short, falda, vestido) para correcta identificación y rechazo",
     "3.7.1": "UMBRAL DE SIMILITUD VISUAL: Rechaza resultados con similitud < 60% para evitar productos irrelevantes (ej: buzo para pantalón)",
@@ -157,16 +158,16 @@ def load_clip_model():
     
     # Configurar dispositivo (forzar CPU para ahorrar memoria)
     device = "cpu"  # Forzar CPU para 512MB RAM
-    print(f"🔄 Cargando modelo CLIP (RN50x16 - ULTRA optimizado para 512MB RAM)...")
+    print(f"🔄 Cargando modelo CLIP (RN50 - optimizado para 512MB RAM)...")
     
     # Usar modelo más pequeño y configuraciones de memoria
-    model, preprocess = clip.load("RN50x16", device=device)
+    model, preprocess = clip.load("RN50", device=device)
     
     # Optimizaciones de memoria
     if hasattr(model, 'eval'):
         model.eval()
     
-    print(f"✅ Modelo CLIP RN50x16 cargado en: {device}")
+    print(f"✅ Modelo CLIP RN50 cargado en: {device}")
     return model, preprocess
 
 def get_image_embedding(image_input):
