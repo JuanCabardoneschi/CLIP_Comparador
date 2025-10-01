@@ -989,13 +989,13 @@ def catalog_file(filename):
     """Servir archivos del catálogo"""
     return send_from_directory(app.config['CATALOGO_FOLDER'], filename)
 
-@app.route('/admin/generate-embeddings', methods=['POST'])
-@login_required
+@app.route('/admin/generate-embeddings', methods=['GET', 'POST'])
 def generate_embeddings_endpoint():
-    """Generar embeddings del catálogo disponible"""
+    """Generar embeddings del catálogo disponible - Sin auth para setup inicial"""
     try:
-        if not model:
-            return jsonify({'error': 'Modelo CLIP no cargado'}), 500
+        # Asegurar que el modelo esté cargado
+        if not ensure_model_loaded():
+            return jsonify({'error': 'No se pudo cargar el modelo CLIP'}), 500
             
         catalog_path = app.config['CATALOGO_FOLDER']
         if not os.path.exists(catalog_path):
