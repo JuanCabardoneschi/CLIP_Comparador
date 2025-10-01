@@ -60,8 +60,8 @@ def generate_catalog_embeddings():
     print(f"🔧 Dispositivo: {device}")
     
     # Cargar modelo CLIP
-    print("🔄 Cargando modelo CLIP (RN50 - optimizado para producción)...")
-    model, preprocess = clip.load("RN50", device=device)
+    print("🔄 Cargando modelo CLIP (ViT-B/32 - MÍNIMO para 512MB RAM)...")
+    model, preprocess = clip.load("ViT-B/32", device=device)
     print("✅ Modelo CLIP cargado")
     
     # Directorio del catálogo

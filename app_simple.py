@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.3"
+VERSION = "3.8.4"
 BUILD_DATE = "2025-10-01"
 CHANGES_LOG = {
+    "3.8.4": "MEMORIA ULTRA-OPTIMIZADA: ViT-B/32 + half precision + garbage collection agresivo para resolver OOM en Render",
     "3.8.3": "DIAGNÓSTICO MEJORADO: Verificación de modelo al inicio + logging detallado para debugging en producción",
     "3.8.2": "MODELO CLIP OPTIMIZADO: Cambiado de RN50x16 a RN50 para compatibilidad con 512MB RAM en producción",
     "3.8.1": "CORRECCIÓN CRÍTICA: Termina búsqueda al detectar categorías no comercializadas. No muestra productos irrelevantes.",
@@ -161,16 +162,28 @@ def load_clip_model():
     try:
         # Configurar dispositivo (forzar CPU para ahorrar memoria)
         device = "cpu"  # Forzar CPU para 512MB RAM
-        print(f"🔄 Cargando modelo CLIP (RN50 - optimizado para 512MB RAM)...")
+        print(f"🔄 Cargando modelo CLIP (ViT-B/32 - MÍNIMO para 512MB RAM)...")
         
-        # Usar modelo más pequeño y configuraciones de memoria
-        model, preprocess = clip.load("RN50", device=device)
+        # Usar el modelo más pequeño disponible
+        model, preprocess = clip.load("ViT-B/32", device=device)
         
-        # Optimizaciones de memoria
+        # Optimizaciones de memoria EXTREMAS
         if hasattr(model, 'eval'):
             model.eval()
         
-        print(f"✅ Modelo CLIP RN50 cargado en: {device}")
+        # Forzar garbage collection agresivo
+        import gc
+        gc.collect()
+        
+        # Configuraciones de memoria mínima
+        if hasattr(model, 'half'):  # Usar half precision si está disponible
+            try:
+                model = model.half()
+                print("✅ Modelo convertido a half precision")
+            except:
+                print("⚠️ Half precision no disponible, usando float32")
+        
+        print(f"✅ Modelo CLIP ViT-B/32 cargado en: {device}")
         return model, preprocess
         
     except Exception as e:
@@ -198,33 +211,44 @@ def get_image_embedding(image_input):
             image = image_input.convert('RGB')
         
         # Redimensionar imagen agresivamente para ahorrar memoria
-        max_size = 224  # Reducido de 512 a 224 para ahorrar memoria
+        max_size = 224  # Mínimo posible para ViT-B/32
         image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
         print(f"   📏 Redimensionada a: {image.size}")
         
         # Preprocesar (batch size 1 para memoria mínima)
         image_tensor = preprocess(image).unsqueeze(0).to(device)
         
-        # Generar embedding con optimizaciones de memoria
+        # Liberar imagen original inmediatamente
+        del image
+        import gc
+        gc.collect()
+        
+        # Generar embedding con optimizaciones de memoria EXTREMAS
         with torch.no_grad():
-            # Usar autocast si está disponible para reducir memoria
+            # Usar half precision si el modelo lo soporta
+            if hasattr(model, 'dtype') and model.dtype == torch.float16:
+                image_tensor = image_tensor.half()
+            
             image_features = model.encode_image(image_tensor)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
             
-            # Liberar tensor de GPU inmediatamente
-            embedding = image_features.cpu().numpy().flatten().astype(np.float32)  # float32 en lugar de float64
+            # Liberar tensor inmediatamente
+            embedding = image_features.cpu().numpy().flatten().astype(np.float32)
             
-            # Limpiar cache de memoria
+            # Limpiar todo inmediatamente
+            del image_tensor, image_features
             if torch.cuda.is_available():
                 torch.cuda.empty_cache()
+            gc.collect()
         
         print(f"✅ Embedding generado - Norma: {np.linalg.norm(embedding):.4f}")
         return embedding
         
-        return embedding
-        
     except Exception as e:
         print(f"❌ Error procesando imagen: {str(e)}")
+        # Limpiar memoria en caso de error
+        import gc
+        gc.collect()
         return None
 
 def load_catalog_embeddings():
@@ -1057,10 +1081,10 @@ def initialize_system():
             import torch
             import clip
             device_test = "cpu"
-            print("🔄 Prueba de carga del modelo RN50...")
-            model_test, _ = clip.load("RN50", device=device_test)
+            print("🔄 Prueba de carga del modelo ViT-B/32...")
+            model_test, _ = clip.load("ViT-B/32", device=device_test)
             if model_test is not None:
-                print("✅ Modelo RN50 verificado exitosamente")
+                print("✅ Modelo ViT-B/32 verificado exitosamente")
                 test_success = True
                 # Limpiar memoria inmediatamente
                 del model_test
