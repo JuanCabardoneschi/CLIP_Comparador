@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.2"
+VERSION = "3.8.3"
 BUILD_DATE = "2025-10-01"
 CHANGES_LOG = {
+    "3.8.3": "DIAGNÓSTICO MEJORADO: Verificación de modelo al inicio + logging detallado para debugging en producción",
     "3.8.2": "MODELO CLIP OPTIMIZADO: Cambiado de RN50x16 a RN50 para compatibilidad con 512MB RAM en producción",
     "3.8.1": "CORRECCIÓN CRÍTICA: Termina búsqueda al detectar categorías no comercializadas. No muestra productos irrelevantes.",
     "3.8.0": "DETECCIÓN AMPLIADA: Agregadas categorías no comercializadas (pantalón, short, falda, vestido) para correcta identificación y rechazo",
@@ -154,21 +155,30 @@ def load_clip_model():
     
     # Lazy import de dependencias pesadas
     if not lazy_import_heavy_deps():
+        print("❌ Error: No se pudieron importar las dependencias")
         return None, None
     
-    # Configurar dispositivo (forzar CPU para ahorrar memoria)
-    device = "cpu"  # Forzar CPU para 512MB RAM
-    print(f"🔄 Cargando modelo CLIP (RN50 - optimizado para 512MB RAM)...")
-    
-    # Usar modelo más pequeño y configuraciones de memoria
-    model, preprocess = clip.load("RN50", device=device)
-    
-    # Optimizaciones de memoria
-    if hasattr(model, 'eval'):
-        model.eval()
-    
-    print(f"✅ Modelo CLIP RN50 cargado en: {device}")
-    return model, preprocess
+    try:
+        # Configurar dispositivo (forzar CPU para ahorrar memoria)
+        device = "cpu"  # Forzar CPU para 512MB RAM
+        print(f"🔄 Cargando modelo CLIP (RN50 - optimizado para 512MB RAM)...")
+        
+        # Usar modelo más pequeño y configuraciones de memoria
+        model, preprocess = clip.load("RN50", device=device)
+        
+        # Optimizaciones de memoria
+        if hasattr(model, 'eval'):
+            model.eval()
+        
+        print(f"✅ Modelo CLIP RN50 cargado en: {device}")
+        return model, preprocess
+        
+    except Exception as e:
+        print(f"❌ Error cargando modelo CLIP: {str(e)}")
+        print(f"❌ Tipo de error: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
+        return None, None
 
 def get_image_embedding(image_input):
     """Generar embedding para una imagen - acepta path o objeto PIL Image"""
@@ -968,12 +978,27 @@ def upload_file():
 @app.route('/status')
 def status():
     """Estado del sistema - Sin auth para health checks"""
+    # Intentar cargar el modelo si no está cargado para dar un estado más preciso
+    model_status = "No cargado"
+    try:
+        if model is not None:
+            model_status = "Cargado"
+        else:
+            # Intentar lazy loading para verificar si es posible cargar
+            if lazy_import_heavy_deps():
+                model_status = "Disponible (lazy loading)"
+            else:
+                model_status = "Error - dependencias no disponibles"
+    except Exception as e:
+        model_status = f"Error: {str(e)}"
+    
     return jsonify({
         'version': VERSION,
         'build_date': BUILD_DATE,
         'model_loaded': model is not None,
+        'model_status': model_status,
         'catalog_size': len(catalog_embeddings),
-        'device': str(device)
+        'device': str(device) if device else "None"
     })
 
 @app.route('/uploads/<filename>')
@@ -1023,8 +1048,38 @@ def initialize_system():
     """Inicializar sistema con lazy loading"""
     show_version_info()
     
-    # Lazy loading - NO cargar modelo al inicio
-    print("🔄 Configurando lazy loading - Modelo se cargará cuando sea necesario")
+    # Probar que el modelo se puede cargar (pero no mantenerlo en memoria)
+    print("🔄 Verificando disponibilidad del modelo CLIP...")
+    test_success = False
+    try:
+        if lazy_import_heavy_deps():
+            # Hacer una prueba rápida de carga sin mantener el modelo
+            import torch
+            import clip
+            device_test = "cpu"
+            print("🔄 Prueba de carga del modelo RN50...")
+            model_test, _ = clip.load("RN50", device=device_test)
+            if model_test is not None:
+                print("✅ Modelo RN50 verificado exitosamente")
+                test_success = True
+                # Limpiar memoria inmediatamente
+                del model_test
+                import gc
+                gc.collect()
+            else:
+                print("❌ Error: Modelo no se pudo cargar")
+        else:
+            print("❌ Error: Dependencias no disponibles")
+    except Exception as e:
+        print(f"❌ Error verificando modelo: {str(e)}")
+        print(f"❌ Tipo de error: {type(e).__name__}")
+        import traceback
+        traceback.print_exc()
+    
+    if test_success:
+        print("🔄 Configurando lazy loading - Modelo se cargará cuando sea necesario")
+    else:
+        print("⚠️ ADVERTENCIA: El modelo no se pudo verificar, pero continuando con lazy loading")
     
     # Cargar embeddings del catálogo (sin requerir modelo)
     if not load_catalog_embeddings():
