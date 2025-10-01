@@ -116,8 +116,8 @@ def load_clip_model():
     """Cargar el modelo CLIP"""
     global model, preprocess, device
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"🔄 Cargando modelo CLIP...")
-    model, preprocess = clip.load("ViT-B/32", device=device)
+    print(f"🔄 Cargando modelo CLIP (RN50 - optimizado para 512MB RAM)...")
+    model, preprocess = clip.load("RN50", device=device)
     print(f"✅ Modelo CLIP cargado en: {device}")
     return model, preprocess
 
