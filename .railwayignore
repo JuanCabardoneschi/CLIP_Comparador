@@ -1,0 +1,12 @@
+# Railway ignore - Deploy sin catálogo
+catalogo/*.jpg
+catalogo/*.jpeg
+catalogo/*.png
+catalogo/embeddings.json
+
+# Logs y cache
+*.log
+__pycache__/
+.git/
+venv/
+uploads/

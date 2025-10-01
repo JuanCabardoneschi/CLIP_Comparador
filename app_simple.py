@@ -928,6 +928,37 @@ def catalog_file(filename):
     """Servir archivos del catálogo"""
     return send_from_directory(app.config['CATALOGO_FOLDER'], filename)
 
+@app.route('/admin/generate-embeddings', methods=['POST'])
+@login_required
+def generate_embeddings_endpoint():
+    """Generar embeddings del catálogo disponible"""
+    try:
+        if not model:
+            return jsonify({'error': 'Modelo CLIP no cargado'}), 500
+            
+        catalog_path = app.config['CATALOGO_FOLDER']
+        if not os.path.exists(catalog_path):
+            return jsonify({'error': 'Directorio catálogo no encontrado'}), 404
+            
+        # Importar y ejecutar generación de embeddings
+        import subprocess
+        result = subprocess.run([sys.executable, 'generate_embeddings.py'], 
+                               capture_output=True, text=True, cwd='.')
+        
+        if result.returncode == 0:
+            # Recargar embeddings
+            load_catalog_embeddings()
+            return jsonify({
+                'success': True,
+                'message': f'Embeddings generados para {len(catalog_embeddings)} imágenes',
+                'catalog_size': len(catalog_embeddings)
+            })
+        else:
+            return jsonify({'error': f'Error generando embeddings: {result.stderr}'}), 500
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 def initialize_system():
     """Inicializar sistema"""
     show_version_info()
