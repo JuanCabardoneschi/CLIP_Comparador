@@ -965,16 +965,14 @@ def upload_file():
         return jsonify({'error': str(e)}), 500
 
 @app.route('/status')
-@login_required
 def status():
-    """Estado del sistema"""
+    """Estado del sistema - Sin auth para health checks"""
     return jsonify({
         'version': VERSION,
         'build_date': BUILD_DATE,
         'model_loaded': model is not None,
         'catalog_size': len(catalog_embeddings),
-        'device': str(device),
-        'user': current_user.username
+        'device': str(device)
     })
 
 @app.route('/uploads/<filename>')
