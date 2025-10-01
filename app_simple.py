@@ -1,6 +1,6 @@
 """
-CLIP Comparador - Versión 3.7.0 - ENFOQUE SIMPLIFICADO
-Sistema de búsqueda visual inteligente con verificación genérica de categorías comercializadas
+CLIP Comparador - Versión 3.8.1 - OPTIMIZADO PARA 512MB RAM
+Sistema de búsqueda visual inteligente con modelo RN50 optimizado
 """
 
 import os
