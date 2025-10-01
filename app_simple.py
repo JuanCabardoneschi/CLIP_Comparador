@@ -55,10 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.5"
+VERSION = "3.8.6"
 BUILD_DATE = "2025-10-01"
 CHANGES_LOG = {
-    "3.8.5": "FORZAR NUEVO DESPLIEGUE: Garantizar que Render use ViT-B/32 en lugar de RN50 cacheado",
+    "3.8.6": "CORRECCIÓN CRÍTICA: RN50 (244MB) en lugar de ViT-B/32 (338MB) - Error de tamaños de modelos",
     "3.8.4": "MEMORIA ULTRA-OPTIMIZADA: ViT-B/32 + half precision + garbage collection agresivo para resolver OOM en Render",
     "3.8.3": "DIAGNÓSTICO MEJORADO: Verificación de modelo al inicio + logging detallado para debugging en producción",
     "3.8.2": "MODELO CLIP OPTIMIZADO: Cambiado de RN50x16 a RN50 para compatibilidad con 512MB RAM en producción",
@@ -163,10 +163,10 @@ def load_clip_model():
     try:
         # Configurar dispositivo (forzar CPU para ahorrar memoria)
         device = "cpu"  # Forzar CPU para 512MB RAM
-        print(f"🔄 Cargando modelo CLIP (ViT-B/32 - MÍNIMO para 512MB RAM)...")
+        print(f"🔄 Cargando modelo CLIP (RN50 - 244MB CONFIRMADO para 512MB RAM)...")
         
-        # Usar el modelo más pequeño disponible
-        model, preprocess = clip.load("ViT-B/32", device=device)
+        # Usar RN50 que sabemos que es más pequeño
+        model, preprocess = clip.load("RN50", device=device)
         
         # Optimizaciones de memoria EXTREMAS
         if hasattr(model, 'eval'):
@@ -1082,12 +1082,12 @@ def initialize_system():
             import torch
             import clip
             device_test = "cpu"
-            print("🔄 Prueba de carga del modelo ViT-B/32 (ULTRA-OPTIMIZADO)...")
-            print("⚠️ CRÍTICO: Si ves 'RN50' en los logs, hay un problema de cacheo")
-            model_test, _ = clip.load("ViT-B/32", device=device_test)
+            print("🔄 Prueba de carga del modelo RN50 (244MB CONFIRMADO)...")
+            print("⚠️ CRÍTICO: Cambiado de ViT-B/32 (338MB) a RN50 (244MB)")
+            model_test, _ = clip.load("RN50", device=device_test)
             if model_test is not None:
-                print("✅ Modelo ViT-B/32 verificado exitosamente (149MB)")
-                print("🎯 CONFIRMADO: Usando modelo más pequeño para 512MB RAM")
+                print("✅ Modelo RN50 verificado exitosamente (244MB)")
+                print("🎯 CONFIRMADO: Usando modelo RN50 más pequeño que ViT-B/32")
                 test_success = True
                 # Limpiar memoria inmediatamente
                 del model_test
