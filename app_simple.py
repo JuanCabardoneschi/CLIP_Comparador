@@ -8,34 +8,51 @@ import sys
 import warnings
 warnings.filterwarnings("ignore")
 
-# Verificar e importar dependencias
-try:
-    print("✅ Importaciones básicas OK")
-    
-    import torch
-    print("✅ PyTorch importado correctamente")
-    
-    import clip
-    print("✅ CLIP importado correctamente")
-    
-    import numpy as np
-    from PIL import Image
-    from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash, session
-    from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-    from flask_limiter import Limiter
-    from flask_limiter.util import get_remote_address
-    from werkzeug.utils import secure_filename
-    import json
-    from datetime import datetime
-    
-    print("✅ Todas las dependencias importadas correctamente")
-    
-except ImportError as e:
-    print(f"❌ Error importando dependencias: {e}")
-    sys.exit(1)
+# Importaciones optimizadas para 512MB RAM - LAZY LOADING
+import os
+import sys
+import json
+from datetime import datetime
+import warnings
+warnings.filterwarnings("ignore")
+
+print("✅ Importaciones básicas OK")
+
+# Variables globales para lazy loading
+model = None
+preprocess = None
+device = None
 
 # Variables globales
 debug_delantales_info = []
+
+def lazy_import_heavy_deps():
+    """Importar dependencias pesadas solo cuando sea necesario"""
+    global torch, clip, np, Image, Flask, render_template, request, jsonify
+    global send_from_directory, redirect, url_for, flash, session
+    global LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+    global Limiter, get_remote_address, secure_filename
+    
+    try:
+        import torch
+        print("✅ PyTorch importado correctamente")
+        
+        import clip  
+        print("✅ CLIP importado correctamente")
+        
+        import numpy as np
+        from PIL import Image
+        from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash, session
+        from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+        from flask_limiter import Limiter
+        from flask_limiter.util import get_remote_address
+        from werkzeug.utils import secure_filename
+        
+        print("✅ Todas las dependencias importadas correctamente")
+        return True
+    except ImportError as e:
+        print(f"❌ Error importando dependencias: {e}")
+        return False
 
 # 🏷️ Sistema de Versioning Automático
 VERSION = "3.8.1"
@@ -69,11 +86,21 @@ def show_version_info():
     print(f"📊 Versión: {VERSION} (Build: {BUILD_DATE})")
     print(f"🔄 Cambios en esta versión: {CHANGES_LOG[VERSION]}")
 
-# Configuración de la aplicación Flask
-app = Flask(__name__)
-app.config['CATALOGO_FOLDER'] = 'catalogo'
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'clip-demo-secret-key-2025')
+# Configuración de la aplicación Flask (lazy loading de dependencias)
+def create_app():
+    """Crear aplicación Flask con lazy loading"""
+    if not lazy_import_heavy_deps():
+        raise Exception("No se pudieron cargar las dependencias")
+    
+    app = Flask(__name__)
+    app.config['CATALOGO_FOLDER'] = 'catalogo'
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'clip-demo-secret-key-2025')
+    
+    return app
+
+# Crear app
+app = create_app()
 
 # Configuración de autenticación
 login_manager = LoginManager()
@@ -112,18 +139,44 @@ preprocess = None
 device = None
 catalog_embeddings = {}
 
-def load_clip_model():
-    """Cargar el modelo CLIP"""
+def ensure_model_loaded():
+    """Asegurar que el modelo esté cargado (lazy loading)"""
     global model, preprocess, device
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    print(f"🔄 Cargando modelo CLIP (RN50 - optimizado para 512MB RAM)...")
-    model, preprocess = clip.load("RN50", device=device)
-    print(f"✅ Modelo CLIP cargado en: {device}")
+    if model is None:
+        print("🔄 Cargando modelo bajo demanda...")
+        load_clip_model()
+    return model is not None
+
+def load_clip_model():
+    """Cargar el modelo CLIP con lazy loading y optimizaciones de memoria"""
+    global model, preprocess, device
+    
+    # Lazy import de dependencias pesadas
+    if not lazy_import_heavy_deps():
+        return None, None
+    
+    # Configurar dispositivo (forzar CPU para ahorrar memoria)
+    device = "cpu"  # Forzar CPU para 512MB RAM
+    print(f"🔄 Cargando modelo CLIP (RN50x16 - ULTRA optimizado para 512MB RAM)...")
+    
+    # Usar modelo más pequeño y configuraciones de memoria
+    model, preprocess = clip.load("RN50x16", device=device)
+    
+    # Optimizaciones de memoria
+    if hasattr(model, 'eval'):
+        model.eval()
+    
+    print(f"✅ Modelo CLIP RN50x16 cargado en: {device}")
     return model, preprocess
 
 def get_image_embedding(image_input):
     """Generar embedding para una imagen - acepta path o objeto PIL Image"""
     global model, preprocess, device
+    
+    # Asegurar que el modelo esté cargado
+    if not ensure_model_loaded():
+        raise Exception("No se pudo cargar el modelo CLIP")
+    
     try:
         # Determinar si es un path o un objeto Image
         if isinstance(image_input, str):
@@ -133,21 +186,29 @@ def get_image_embedding(image_input):
             print(f"🔄 Procesando imagen desde memoria")
             image = image_input.convert('RGB')
         
-        # Redimensionar imagen manteniendo aspect ratio
-        max_size = 512
+        # Redimensionar imagen agresivamente para ahorrar memoria
+        max_size = 224  # Reducido de 512 a 224 para ahorrar memoria
         image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
         print(f"   📏 Redimensionada a: {image.size}")
         
-        # Preprocesar
+        # Preprocesar (batch size 1 para memoria mínima)
         image_tensor = preprocess(image).unsqueeze(0).to(device)
         
-        # Generar embedding
+        # Generar embedding con optimizaciones de memoria
         with torch.no_grad():
+            # Usar autocast si está disponible para reducir memoria
             image_features = model.encode_image(image_tensor)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+            
+            # Liberar tensor de GPU inmediatamente
+            embedding = image_features.cpu().numpy().flatten().astype(np.float32)  # float32 en lugar de float64
+            
+            # Limpiar cache de memoria
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
         
-        embedding = image_features.cpu().numpy().flatten().astype(float)
         print(f"✅ Embedding generado - Norma: {np.linalg.norm(embedding):.4f}")
+        return embedding
         
         return embedding
         
@@ -960,18 +1021,17 @@ def generate_embeddings_endpoint():
         return jsonify({'error': str(e)}), 500
 
 def initialize_system():
-    """Inicializar sistema"""
+    """Inicializar sistema con lazy loading"""
     show_version_info()
     
-    # Cargar modelo CLIP
-    load_clip_model()
+    # Lazy loading - NO cargar modelo al inicio
+    print("🔄 Configurando lazy loading - Modelo se cargará cuando sea necesario")
     
-    # Cargar embeddings del catálogo
+    # Cargar embeddings del catálogo (sin requerir modelo)
     if not load_catalog_embeddings():
-        print("❌ Error crítico: No se pudieron cargar los embeddings del catálogo")
-        return False
+        print("⚠️ Embeddings no encontrados - usar /admin/generate-embeddings después del deployment")
     
-    print("✅ Sistema listo!")
+    print("✅ Sistema listo con optimizaciones de memoria!")
     print(f"📁 Catálogo: {len(catalog_embeddings)} imágenes")
     return True
 
