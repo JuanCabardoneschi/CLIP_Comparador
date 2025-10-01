@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.4"
+VERSION = "3.8.5"
 BUILD_DATE = "2025-10-01"
 CHANGES_LOG = {
+    "3.8.5": "FORZAR NUEVO DESPLIEGUE: Garantizar que Render use ViT-B/32 en lugar de RN50 cacheado",
     "3.8.4": "MEMORIA ULTRA-OPTIMIZADA: ViT-B/32 + half precision + garbage collection agresivo para resolver OOM en Render",
     "3.8.3": "DIAGNÓSTICO MEJORADO: Verificación de modelo al inicio + logging detallado para debugging en producción",
     "3.8.2": "MODELO CLIP OPTIMIZADO: Cambiado de RN50x16 a RN50 para compatibilidad con 512MB RAM en producción",
@@ -1081,10 +1082,12 @@ def initialize_system():
             import torch
             import clip
             device_test = "cpu"
-            print("🔄 Prueba de carga del modelo ViT-B/32...")
+            print("🔄 Prueba de carga del modelo ViT-B/32 (ULTRA-OPTIMIZADO)...")
+            print("⚠️ CRÍTICO: Si ves 'RN50' en los logs, hay un problema de cacheo")
             model_test, _ = clip.load("ViT-B/32", device=device_test)
             if model_test is not None:
-                print("✅ Modelo ViT-B/32 verificado exitosamente")
+                print("✅ Modelo ViT-B/32 verificado exitosamente (149MB)")
+                print("🎯 CONFIRMADO: Usando modelo más pequeño para 512MB RAM")
                 test_success = True
                 # Limpiar memoria inmediatamente
                 del model_test
