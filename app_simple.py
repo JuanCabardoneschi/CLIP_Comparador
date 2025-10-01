@@ -83,10 +83,10 @@ login_manager.login_message = 'Por favor, inicia sesión para acceder.'
 
 # Configuración de rate limiting
 limiter = Limiter(
-    app,
     key_func=get_remote_address,
     default_limits=["200 per day", "50 per hour", "10 per minute"]
 )
+limiter.init_app(app)
 
 # Usuarios demo
 DEMO_USERS = {
