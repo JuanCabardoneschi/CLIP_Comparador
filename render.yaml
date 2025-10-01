@@ -4,7 +4,14 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     plan: starter
-    autoDeploy: false
+    region: oregon
+    autoDeploy: true
+    disk:
+      name: clip-storage
+      mountPath: /data
+      sizeGB: 10
     envVars:
       - key: PORT
         generateValue: true
+      - key: PYTHON_UNBUFFERED
+        value: "1"
