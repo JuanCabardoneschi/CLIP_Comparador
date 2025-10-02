@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.0"
+VERSION = "3.9.1"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.9.1": "FIX COMPLETO JSON: Convertir float32 en calculate_similarity y results para evitar errores serialización",
     "3.9.0": "FIX JSON SERIALIZATION: Convertir float32 PyTorch a float Python para evitar error 'not JSON serializable'",
     "3.8.9": "FIX CRÍTICO CATEGORÍAS: Corregido bucle classifications + generadas product_classifications.json para detección de productos",
     "3.8.8": "FIX DETECCIÓN CATEGORÍAS: Mejorada lógica para detectar 'camisa' en 'camisa con botones y cuello'",
@@ -273,7 +274,8 @@ def load_catalog_embeddings():
 
 def calculate_similarity(embedding1, embedding2):
     """Calcular similitud coseno entre dos embeddings"""
-    return np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
+    similarity = np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
+    return float(similarity)  # Convertir a float Python para JSON serialization
 
 def classify_query_image(image_input):
     """Clasificar imagen usando CLIP text embeddings - acepta path o objeto PIL Image"""
@@ -954,10 +956,11 @@ def upload_file():
         results = []
         for filename_path, similarity in similar_images:
             basename = os.path.basename(filename_path)
+            sim_float = float(similarity)  # Convertir a float Python primero
             results.append({
                 'filename': basename,
-                'similarity': float(similarity),
-                'similarity_percent': round(similarity * 100, 2)
+                'similarity': sim_float,
+                'similarity_percent': round(sim_float * 100, 2)
             })
         
         # Determinar mensaje de estado
