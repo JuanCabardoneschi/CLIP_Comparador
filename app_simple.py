@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.4"
+VERSION = "3.9.5"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.9.5": "DEBUG: Logs detallados para diagnosticar problema de orientación EXIF en móviles",
     "3.9.4": "FIX EXIF: Evitar doble corrección orientación - solo aplicar en archivos, no en objetos Image ya procesados",
     "3.9.3": "NUEVA FUNCIONALIDAD: Corrección automática de orientación EXIF para imágenes de móviles (rotación 90°)",
     "3.9.2": "FIX RUTAS IMÁGENES: Normalizar separadores \\ a / antes de basename() para compatibilidad Linux/Windows",
@@ -289,14 +290,19 @@ def fix_image_orientation(image):
     try:
         from PIL.ExifTags import ORIENTATION
         
+        print(f"🔍 DEBUG: Verificando orientación EXIF...")
+        print(f"   Imagen original: {image.size}")
+        
         # Obtener datos EXIF
         exif = image._getexif()
         
         if exif is not None:
+            print(f"   ✅ EXIF encontrado con {len(exif)} entradas")
             # Buscar la tag de orientación
             for tag_id, value in exif.items():
-                tag = ORIENTATION
                 if tag_id == 274:  # 274 es el código EXIF para orientación
+                    print(f"   📱 EXIF Orientación encontrada: {value}")
+                    
                     # Valores de orientación EXIF:
                     # 1: Normal (0°)
                     # 3: Rotado 180°
@@ -312,15 +318,22 @@ def fix_image_orientation(image):
                     elif value == 8:
                         image = image.rotate(90, expand=True)
                         print("🔄 Imagen rotada 90° (EXIF orientation 8)")
+                    elif value == 1:
+                        print(f"📱 Orientación normal (EXIF 1) - sin rotación necesaria")
                     else:
-                        print(f"📱 Orientación EXIF detectada: {value} (sin rotación necesaria)")
-                    break
+                        print(f"📱 Orientación EXIF desconocida: {value}")
+                    
+                    print(f"   Imagen después: {image.size}")
+                    return image
+            
+            print("   ⚠️ No se encontró tag de orientación (274) en EXIF")
         else:
-            print("📷 Sin datos EXIF de orientación")
+            print("   📷 Sin datos EXIF de orientación")
             
     except Exception as e:
-        print(f"⚠️ Error procesando EXIF: {str(e)}")
+        print(f"   ❌ Error procesando EXIF: {str(e)}")
     
+    print(f"   Imagen sin cambios: {image.size}")
     return image
 
 def classify_query_image(image_input):
@@ -960,11 +973,13 @@ def upload_file():
             import io
             image_stream = io.BytesIO(file_content)
             image = Image.open(image_stream)
+            print(f"📸 Imagen original cargada: {image.size}")
             
             # Corregir orientación EXIF (especialmente importante para móviles)
+            print(f"🔧 APLICANDO CORRECCIÓN EXIF...")
             image = fix_image_orientation(image)
             image = image.convert('RGB')
-            print(f"✅ Imagen cargada y orientada - Tamaño final: {image.size}")
+            print(f"✅ Imagen final después de corrección: {image.size}")
             
             # Convertir imagen a base64 para mostrar en frontend
             import base64
