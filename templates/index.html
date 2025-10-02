@@ -672,6 +672,7 @@
                 
                 if (goodResults.length > 0) {
                     goodResults.forEach(item => {
+                        console.log('DEBUG: item.filename =', item.filename); // DEBUG temporal
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'similar-item';
                         
