@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.3"
+VERSION = "3.9.4"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.9.4": "FIX EXIF: Evitar doble corrección orientación - solo aplicar en archivos, no en objetos Image ya procesados",
     "3.9.3": "NUEVA FUNCIONALIDAD: Corrección automática de orientación EXIF para imágenes de móviles (rotación 90°)",
     "3.9.2": "FIX RUTAS IMÁGENES: Normalizar separadores \\ a / antes de basename() para compatibilidad Linux/Windows",
     "3.9.1": "FIX COMPLETO JSON: Convertir float32 en calculate_similarity y results para evitar errores serialización",
@@ -208,12 +209,12 @@ def get_image_embedding(image_input):
         if isinstance(image_input, str):
             print(f"🔄 Procesando imagen desde archivo: {os.path.basename(image_input)}")
             image = Image.open(image_input)
+            # Corregir orientación EXIF solo para archivos (no para objetos ya procesados)
+            image = fix_image_orientation(image)
         else:
-            print(f"🔄 Procesando imagen desde memoria")
+            print(f"🔄 Procesando imagen desde memoria (ya procesada)")
             image = image_input
             
-        # Corregir orientación EXIF (especialmente importante para móviles)
-        image = fix_image_orientation(image)
         image = image.convert('RGB')
         
         # Redimensionar imagen agresivamente para ahorrar memoria
@@ -329,11 +330,11 @@ def classify_query_image(image_input):
         # Determinar si es un path o un objeto Image
         if isinstance(image_input, str):
             image = Image.open(image_input)
+            # Corregir orientación EXIF solo para archivos (no para objetos ya procesados)
+            image = fix_image_orientation(image)
         else:
             image = image_input
             
-        # Corregir orientación EXIF (importante para imágenes de móvil)
-        image = fix_image_orientation(image)
         image = image.convert('RGB')
             
         image_tensor = preprocess(image).unsqueeze(0).to(device)
