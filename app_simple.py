@@ -55,7 +55,7 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.8"
+VERSION = "3.8.9"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
     "3.8.8": "FIX DETECCIÓN CATEGORÍAS: Mejorada lógica para detectar 'camisa' en 'camisa con botones y cuello'",
