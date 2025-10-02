@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.9"
+VERSION = "3.9.0"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.9.0": "FIX JSON SERIALIZATION: Convertir float32 PyTorch a float Python para evitar error 'not JSON serializable'",
     "3.8.9": "FIX CRÍTICO CATEGORÍAS: Corregido bucle classifications + generadas product_classifications.json para detección de productos",
     "3.8.8": "FIX DETECCIÓN CATEGORÍAS: Mejorada lógica para detectar 'camisa' en 'camisa con botones y cuello'",
     "3.8.7": "FIX COMPATIBILIDAD: Removido half precision problemático + estado de modelo corregido",
@@ -326,7 +327,7 @@ def classify_query_image(image_input):
             
             # Obtener la categoría más probable
             best_match_idx = similarities.argmax().item()
-            confidence = similarities[best_match_idx].item()
+            confidence = float(similarities[best_match_idx].item())  # Convertir a float de Python
             
             category = categories[best_match_idx].split(',')[0].strip()
             
