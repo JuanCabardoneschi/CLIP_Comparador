@@ -58,6 +58,7 @@ def lazy_import_heavy_deps():
 VERSION = "3.8.9"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.8.9": "FIX CRÍTICO CATEGORÍAS: Corregido bucle classifications + generadas product_classifications.json para detección de productos",
     "3.8.8": "FIX DETECCIÓN CATEGORÍAS: Mejorada lógica para detectar 'camisa' en 'camisa con botones y cuello'",
     "3.8.7": "FIX COMPATIBILIDAD: Removido half precision problemático + estado de modelo corregido",
     "3.8.6": "CORRECCIÓN CRÍTICA: RN50 (244MB) en lugar de ViT-B/32 (338MB) - Error de tamaños de modelos",
