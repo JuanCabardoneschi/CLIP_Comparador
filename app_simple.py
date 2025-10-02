@@ -629,16 +629,16 @@ def _check_category_availability(query_type, classifications):
     
     # Mapeo de categorías VÁLIDAS (productos que SÍ comercializa GOODY)
     goody_category_mappings = {
-        'buzo': ['BUZO', 'SUDADERA', 'HOODIE', 'FRIZADO'],
-        'camisa': ['CAMISA', 'BLUSA', 'SHIRT'],
-        'gorro': ['GORRO', 'GORRA', 'BOINA', 'CAP'],
-        'chaqueta': ['CHAQUETA', 'JACKET', 'CAMPERA'],
+        'buzo': ['BUZO', 'BUZOS', 'SUDADERA', 'HOODIE', 'FRIZADO'],
+        'camisa': ['CAMISA', 'CAMISAS', 'CAMISAS HOMBRE- DAMA', 'BLUSA', 'SHIRT'],
+        'gorro': ['GORRO', 'GORROS', 'GORROS – GORRAS', 'GORRA', 'BOINA', 'CAP'],
+        'chaqueta': ['CHAQUETA', 'CHAQUETAS', 'JACKET', 'CAMPERA'],
         'delantal': ['DELANTAL', 'MANDIL', 'APRON', 'PECHERA', 'JUMPER'],
-        'ambo': ['AMBO', 'SCRUBS', 'UNIFORME'],
-        'casaca': ['CASACA', 'CHEF'],
-        'zapato': ['ZAPATO', 'ZUECO', 'CALZADO', 'SHOE'],
-        'cardigan': ['CARDIGAN', 'CHALECO', 'VEST'],
-        'remera': ['REMERA', 'POLO', 'T-SHIRT', 'PLAYERA']
+        'ambo': ['AMBO', 'AMBO VESTIR HOMBRE – DAMA', 'SCRUBS', 'UNIFORME'],
+        'casaca': ['CASACA', 'CASACAS', 'CHEF'],
+        'zapato': ['ZAPATO', 'ZAPATO DAMA', 'ZUECO', 'ZUECOS', 'CALZADO', 'SHOE'],
+        'cardigan': ['CARDIGAN', 'CARDIGAN HOMBRE – DAMA', 'CHALECO', 'CHALECO DAMA- HOMBRE', 'VEST'],
+        'remera': ['REMERA', 'REMERAS', 'POLO', 'T-SHIRT', 'PLAYERA']
     }
     
     # Mapeo de categorías NO COMERCIALIZADAS (productos que NO vende GOODY)
@@ -682,9 +682,7 @@ def _check_category_availability(query_type, classifications):
         return False, []
     
     # Buscar productos disponibles en el catálogo para esta categoría válida
-    for filename in classifications:
-        basename = os.path.basename(filename)
-        
+    for basename in classifications:
         # Verificar por nombre del archivo
         if any(keyword in basename.upper() for keyword in relevant_keywords):
             available_products.append(basename)
