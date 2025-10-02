@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.2"
+VERSION = "3.9.3"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.9.3": "NUEVA FUNCIONALIDAD: Corrección automática de orientación EXIF para imágenes de móviles (rotación 90°)",
     "3.9.2": "FIX RUTAS IMÁGENES: Normalizar separadores \\ a / antes de basename() para compatibilidad Linux/Windows",
     "3.9.1": "FIX COMPLETO JSON: Convertir float32 en calculate_similarity y results para evitar errores serialización",
     "3.9.0": "FIX JSON SERIALIZATION: Convertir float32 PyTorch a float Python para evitar error 'not JSON serializable'",
@@ -206,10 +207,14 @@ def get_image_embedding(image_input):
         # Determinar si es un path o un objeto Image
         if isinstance(image_input, str):
             print(f"🔄 Procesando imagen desde archivo: {os.path.basename(image_input)}")
-            image = Image.open(image_input).convert('RGB')
+            image = Image.open(image_input)
         else:
             print(f"🔄 Procesando imagen desde memoria")
-            image = image_input.convert('RGB')
+            image = image_input
+            
+        # Corregir orientación EXIF (especialmente importante para móviles)
+        image = fix_image_orientation(image)
+        image = image.convert('RGB')
         
         # Redimensionar imagen agresivamente para ahorrar memoria
         max_size = 224  # Mínimo posible para ViT-B/32
@@ -278,15 +283,58 @@ def calculate_similarity(embedding1, embedding2):
     similarity = np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
     return float(similarity)  # Convertir a float Python para JSON serialization
 
+def fix_image_orientation(image):
+    """Corregir orientación de imagen basándose en datos EXIF (especialmente para móviles)"""
+    try:
+        from PIL.ExifTags import ORIENTATION
+        
+        # Obtener datos EXIF
+        exif = image._getexif()
+        
+        if exif is not None:
+            # Buscar la tag de orientación
+            for tag_id, value in exif.items():
+                tag = ORIENTATION
+                if tag_id == 274:  # 274 es el código EXIF para orientación
+                    # Valores de orientación EXIF:
+                    # 1: Normal (0°)
+                    # 3: Rotado 180°
+                    # 6: Rotado 90° en sentido horario
+                    # 8: Rotado 90° en sentido antihorario
+                    
+                    if value == 3:
+                        image = image.rotate(180, expand=True)
+                        print("🔄 Imagen rotada 180° (EXIF orientation 3)")
+                    elif value == 6:
+                        image = image.rotate(270, expand=True)
+                        print("🔄 Imagen rotada 270° (EXIF orientation 6 - móvil horizontal)")
+                    elif value == 8:
+                        image = image.rotate(90, expand=True)
+                        print("🔄 Imagen rotada 90° (EXIF orientation 8)")
+                    else:
+                        print(f"📱 Orientación EXIF detectada: {value} (sin rotación necesaria)")
+                    break
+        else:
+            print("📷 Sin datos EXIF de orientación")
+            
+    except Exception as e:
+        print(f"⚠️ Error procesando EXIF: {str(e)}")
+    
+    return image
+
 def classify_query_image(image_input):
     """Clasificar imagen usando CLIP text embeddings - acepta path o objeto PIL Image"""
     global model, preprocess, device
     try:
         # Determinar si es un path o un objeto Image
         if isinstance(image_input, str):
-            image = Image.open(image_input).convert('RGB')
+            image = Image.open(image_input)
         else:
-            image = image_input.convert('RGB')
+            image = image_input
+            
+        # Corregir orientación EXIF (importante para imágenes de móvil)
+        image = fix_image_orientation(image)
+        image = image.convert('RGB')
             
         image_tensor = preprocess(image).unsqueeze(0).to(device)
         
@@ -910,8 +958,12 @@ def upload_file():
             # Crear un stream desde el contenido
             import io
             image_stream = io.BytesIO(file_content)
-            image = Image.open(image_stream).convert('RGB')
-            print(f"✅ Imagen cargada en memoria - Tamaño original: {image.size}")
+            image = Image.open(image_stream)
+            
+            # Corregir orientación EXIF (especialmente importante para móviles)
+            image = fix_image_orientation(image)
+            image = image.convert('RGB')
+            print(f"✅ Imagen cargada y orientada - Tamaño final: {image.size}")
             
             # Convertir imagen a base64 para mostrar en frontend
             import base64
