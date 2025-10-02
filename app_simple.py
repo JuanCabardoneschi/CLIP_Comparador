@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.1"
+VERSION = "3.9.2"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.9.2": "FIX RUTAS IMÁGENES: Normalizar separadores \\ a / antes de basename() para compatibilidad Linux/Windows",
     "3.9.1": "FIX COMPLETO JSON: Convertir float32 en calculate_similarity y results para evitar errores serialización",
     "3.9.0": "FIX JSON SERIALIZATION: Convertir float32 PyTorch a float Python para evitar error 'not JSON serializable'",
     "3.8.9": "FIX CRÍTICO CATEGORÍAS: Corregido bucle classifications + generadas product_classifications.json para detección de productos",
@@ -955,7 +956,9 @@ def upload_file():
         # Preparar respuesta
         results = []
         for filename_path, similarity in similar_images:
-            basename = os.path.basename(filename_path)
+            # Asegurar que solo tengamos el nombre del archivo (sin path)
+            # Manejar tanto \ (Windows) como / (Linux) separadores
+            basename = os.path.basename(filename_path.replace('\\', '/'))
             sim_float = float(similarity)  # Convertir a float Python primero
             results.append({
                 'filename': basename,
