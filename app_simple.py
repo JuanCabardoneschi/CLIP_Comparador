@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.6"
-BUILD_DATE = "2025-10-01"
+VERSION = "3.8.7"
+BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.8.7": "FIX COMPATIBILIDAD: Removido half precision problemático + estado de modelo corregido",
     "3.8.6": "CORRECCIÓN CRÍTICA: RN50 (244MB) en lugar de ViT-B/32 (338MB) - Error de tamaños de modelos",
     "3.8.4": "MEMORIA ULTRA-OPTIMIZADA: ViT-B/32 + half precision + garbage collection agresivo para resolver OOM en Render",
     "3.8.3": "DIAGNÓSTICO MEJORADO: Verificación de modelo al inicio + logging detallado para debugging en producción",
@@ -168,7 +169,7 @@ def load_clip_model():
         # Usar RN50 que sabemos que es más pequeño
         model, preprocess = clip.load("RN50", device=device)
         
-        # Optimizaciones de memoria EXTREMAS
+        # Optimizaciones de memoria (sin half precision para compatibilidad)
         if hasattr(model, 'eval'):
             model.eval()
         
@@ -176,13 +177,7 @@ def load_clip_model():
         import gc
         gc.collect()
         
-        # Configuraciones de memoria mínima
-        if hasattr(model, 'half'):  # Usar half precision si está disponible
-            try:
-                model = model.half()
-                print("✅ Modelo convertido a half precision")
-            except:
-                print("⚠️ Half precision no disponible, usando float32")
+        print("✅ Modelo optimizado para máxima compatibilidad (float32)")
         
         print(f"✅ Modelo CLIP ViT-B/32 cargado en: {device}")
         return model, preprocess
@@ -226,9 +221,8 @@ def get_image_embedding(image_input):
         
         # Generar embedding con optimizaciones de memoria EXTREMAS
         with torch.no_grad():
-            # Usar half precision si el modelo lo soporta
-            if hasattr(model, 'dtype') and model.dtype == torch.float16:
-                image_tensor = image_tensor.half()
+            # Asegurar compatibilidad de tipos - siempre usar float32 para estabilidad
+            image_tensor = image_tensor.float()  # Forzar float32 para compatibilidad
             
             image_features = model.encode_image(image_tensor)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
@@ -1003,24 +997,30 @@ def upload_file():
 @app.route('/status')
 def status():
     """Estado del sistema - Sin auth para health checks"""
-    # Intentar cargar el modelo si no está cargado para dar un estado más preciso
+    # Determinar estado real del modelo
     model_status = "No cargado"
+    model_really_loaded = False
+    
     try:
         if model is not None:
-            model_status = "Cargado"
+            model_status = "Cargado y listo"
+            model_really_loaded = True
         else:
-            # Intentar lazy loading para verificar si es posible cargar
+            # Verificar si las dependencias están disponibles
             if lazy_import_heavy_deps():
                 model_status = "Disponible (lazy loading)"
+                model_really_loaded = False
             else:
                 model_status = "Error - dependencias no disponibles"
+                model_really_loaded = False
     except Exception as e:
         model_status = f"Error: {str(e)}"
+        model_really_loaded = False
     
     return jsonify({
         'version': VERSION,
         'build_date': BUILD_DATE,
-        'model_loaded': model is not None,
+        'model_loaded': model_really_loaded,
         'model_status': model_status,
         'catalog_size': len(catalog_embeddings),
         'device': str(device) if device else "None"
