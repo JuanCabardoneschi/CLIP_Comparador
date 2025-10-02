@@ -55,9 +55,10 @@ def lazy_import_heavy_deps():
         return False
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.8.7"
+VERSION = "3.8.8"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
+    "3.8.8": "FIX DETECCIÓN CATEGORÍAS: Mejorada lógica para detectar 'camisa' en 'camisa con botones y cuello'",
     "3.8.7": "FIX COMPATIBILIDAD: Removido half precision problemático + estado de modelo corregido",
     "3.8.6": "CORRECCIÓN CRÍTICA: RN50 (244MB) en lugar de ViT-B/32 (338MB) - Error de tamaños de modelos",
     "3.8.4": "MEMORIA ULTRA-OPTIMIZADA: ViT-B/32 + half precision + garbage collection agresivo para resolver OOM en Render",
@@ -655,20 +656,24 @@ def _check_category_availability(query_type, classifications):
     
     # PASO 1: Verificar si es una categoría COMERCIALIZADA
     for goody_category, keywords in goody_category_mappings.items():
-        if goody_category in query_lower:
+        # Buscar si alguna palabra clave de la categoría está en el query
+        if any(keyword.lower() in query_lower for keyword in [goody_category] + keywords):
             category_found = True
             relevant_keywords = keywords
+            print(f"✅ CATEGORÍA DETECTADA: '{query_type}' → '{goody_category.upper()}'")
             break
     
     # PASO 2: Si no es comercializada, verificar si es NO COMERCIALIZADA
     if not category_found:
         for non_comm_category, keywords in non_commercialized_mappings.items():
-            if non_comm_category in query_lower:
+            # Buscar si alguna palabra clave de categoría no comercializada está en el query
+            if any(keyword.lower() in query_lower for keyword in [non_comm_category] + keywords):
                 is_non_commercialized = True
                 print(f"🚫 CATEGORÍA NO COMERCIALIZADA: '{query_type}' corresponde a '{non_comm_category.upper()}'")
                 print(f"💬 GOODY no comercializa este tipo de productos ({non_comm_category})")
                 print(f"🏷️ Categorías disponibles: BUZO, CAMISA, GORRO, CHAQUETA, DELANTAL, AMBO, CASACA, CALZADO, CARDIGAN, REMERA")
                 return False, []
+                break
     
     # Si no encontramos la categoría en ningún mapeo, es categoría desconocida
     if not category_found and not is_non_commercialized:
