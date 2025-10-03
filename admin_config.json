@@ -1,0 +1,53 @@
+{
+  "categories": [
+    "DELANTAL",
+    "AMBO VESTIR HOMBRE – DAMA",
+    "CAMISAS HOMBRE- DAMA", 
+    "CASACAS",
+    "ZUECOS",
+    "GORROS – GORRAS",
+    "CARDIGAN HOMBRE – DAMA",
+    "BUZOS",
+    "ZAPATO DAMA",
+    "CHALECO DAMA- HOMBRE",
+    "CHAQUETAS",
+    "REMERAS"
+  ],
+  "system_settings": {
+    "auto_backup": true,
+    "max_images": 1000,
+    "confidence_threshold": 0.5
+  },
+  "metadata_fields": [
+    {
+      "name": "precio",
+      "type": "number",
+      "required": false
+    },
+    {
+      "name": "descripcion",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "codigo_producto",
+      "type": "text",
+      "required": true
+    },
+    {
+      "name": "stock",
+      "type": "number",
+      "required": false
+    },
+    {
+      "name": "talla_disponible",
+      "type": "text",
+      "required": false
+    },
+    {
+      "name": "color",
+      "type": "text",
+      "required": false
+    }
+  ]
+}

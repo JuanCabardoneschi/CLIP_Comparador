@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚙️ Configuración del Sistema - GOODY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #2980b9;
+            text-decoration: none;
+            color: white;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #9b59b6;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #9b59b6;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #8e44ad;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        .metadata-fields {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .field-item {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+        }
+
+        .field-item input, .field-item select {
+            margin-bottom: 0;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .export-section {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .export-btn {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .field-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .export-section {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⚙️ Configuración del Sistema</h1>
+        <p>Ajusta los parámetros y configuraciones del sistema GOODY</p>
+    </div>
+
+    <div class="container">
+        <a href="{{ url_for('admin_dashboard') }}" class="back-btn">← Volver al Dashboard</a>
+
+        <div id="message-container"></div>
+
+        <!-- Configuraciones del Sistema -->
+        <div class="section">
+            <div class="section-title">🛠️ Configuraciones del Sistema</div>
+            
+            <form id="systemSettingsForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="maxImages">Máximo de imágenes permitidas:</label>
+                        <input type="number" id="maxImages" name="max_images" 
+                               value="{{ config.system_settings.max_images }}" 
+                               min="100" max="10000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confidenceThreshold">Umbral de confianza mínimo:</label>
+                        <input type="number" id="confidenceThreshold" name="confidence_threshold" 
+                               value="{{ config.system_settings.confidence_threshold }}" 
+                               min="0" max="1" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="autoBackup" name="auto_backup" 
+                                   {{ 'checked' if config.system_settings.auto_backup else '' }}>
+                            <label for="autoBackup">Backup automático habilitado</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    💾 Guardar Configuraciones
+                </button>
+            </form>
+        </div>
+
+        <!-- Gestión de Campos de Metadata -->
+        <div class="section">
+            <div class="section-title">📝 Campos de Metadata</div>
+            
+            <div class="metadata-fields">
+                <div id="fieldsContainer">
+                    {% for field in config.metadata_fields %}
+                    <div class="field-item">
+                        <input type="text" placeholder="Nombre del campo" 
+                               value="{{ field.name }}" class="field-name">
+                        <select class="field-type">
+                            <option value="text" {{ 'selected' if field.type == 'text' else '' }}>Texto</option>
+                            <option value="number" {{ 'selected' if field.type == 'number' else '' }}>Número</option>
+                        </select>
+                        <div class="checkbox-group">
+                            <input type="checkbox" class="field-required" 
+                                   {{ 'checked' if field.required else '' }}>
+                            <label>Requerido</label>
+                        </div>
+                        <button type="button" class="btn btn-danger" onclick="removeField(this)">
+                            🗑️
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="button" class="btn btn-success" onclick="addField()">
+                    ➕ Agregar Campo
+                </button>
+                
+                <button type="button" class="btn btn-primary" onclick="saveMetadataFields()">
+                    💾 Guardar Campos
+                </button>
+            </div>
+        </div>
+
+        <!-- Exportación y Backup -->
+        <div class="section">
+            <div class="section-title">📤 Exportación y Backup</div>
+            
+            <div class="export-section">
+                <a href="{{ url_for('export_classifications') }}" 
+                   class="btn btn-primary export-btn">
+                    📄 Exportar Clasificaciones
+                </a>
+                
+                <a href="{{ url_for('export_metadata') }}" 
+                   class="btn btn-success export-btn">
+                    📋 Exportar Metadata Completa
+                </a>
+                
+                <button type="button" class="btn btn-danger export-btn" 
+                        onclick="createSystemBackup()">
+                    💾 Crear Backup Completo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Guardar configuraciones del sistema
+        document.getElementById('systemSettingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const settings = {
+                system_settings: {
+                    max_images: parseInt(formData.get('max_images')),
+                    confidence_threshold: parseFloat(formData.get('confidence_threshold')),
+                    auto_backup: formData.get('auto_backup') === 'on'
+                }
+            };
+            
+            try {
+                const response = await fetch('/admin/api/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(settings)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('success', result.message);
+                } else {
+                    showMessage('error', result.error);
+                }
+                
+            } catch (error) {
+                showMessage('error', 'Error al guardar configuraciones: ' + error.message);
+            }
+        });
+
+        // Agregar nuevo campo de metadata
+        function addField() {
+            const container = document.getElementById('fieldsContainer');
+            const fieldItem = document.createElement('div');
+            fieldItem.className = 'field-item';
+            fieldItem.innerHTML = `
+                <input type="text" placeholder="Nombre del campo" class="field-name">
+                <select class="field-type">
+                    <option value="text">Texto</option>
+                    <option value="number">Número</option>
+                </select>
+                <div class="checkbox-group">
+                    <input type="checkbox" class="field-required">
+                    <label>Requerido</label>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="removeField(this)">
+                    🗑️
+                </button>
+            `;
+            container.appendChild(fieldItem);
+        }
+
+        // Eliminar campo de metadata
+        function removeField(button) {
+            if (confirm('¿Eliminar este campo de metadata?')) {
+                button.parentNode.remove();
+            }
+        }
+
+        // Guardar campos de metadata
+        async function saveMetadataFields() {
+            const fields = [];
+            const fieldItems = document.querySelectorAll('.field-item');
+            
+            fieldItems.forEach(item => {
+                const name = item.querySelector('.field-name').value.trim();
+                const type = item.querySelector('.field-type').value;
+                const required = item.querySelector('.field-required').checked;
+                
+                if (name) {
+                    fields.push({ name, type, required });
+                }
+            });
+            
+            try {
+                const response = await fetch('/admin/api/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ metadata_fields: fields })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('success', 'Campos de metadata guardados exitosamente');
+                } else {
+                    showMessage('error', result.error);
+                }
+                
+            } catch (error) {
+                showMessage('error', 'Error al guardar campos: ' + error.message);
+            }
+        }
+
+        // Crear backup del sistema
+        async function createSystemBackup() {
+            if (!confirm('¿Crear backup completo del sistema?')) return;
+            
+            try {
+                const response = await fetch('/admin/backup');
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('success', result.message);
+                } else {
+                    showMessage('error', result.error);
+                }
+            } catch (error) {
+                showMessage('error', 'Error al crear backup: ' + error.message);
+            }
+        }
+
+        // Mostrar mensajes
+        function showMessage(type, message) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            
+            // Auto-hide después de 5 segundos
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

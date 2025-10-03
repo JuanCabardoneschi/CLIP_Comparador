@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏷️ Gestión de Categorías - GOODY</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .back-btn:hover {
+            background: #2980b9;
+            text-decoration: none;
+            color: white;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            border-bottom: 2px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+
+        .add-category-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            align-items: end;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c0392b;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .category-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 5px solid #e74c3c;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .category-info {
+            flex: 1;
+        }
+
+        .category-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .category-count {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .category-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats-summary {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .stats-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+            .add-category-form {
+                flex-direction: column;
+            }
+            
+            .categories-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏷️ Gestión de Categorías</h1>
+        <p>Administra las categorías de productos del sistema</p>
+    </div>
+
+    <div class="container">
+        <a href="{{ url_for('admin_dashboard') }}" class="back-btn">← Volver al Dashboard</a>
+
+        <!-- Estadísticas -->
+        <div class="stats-summary">
+            <div class="stats-number">{{ categories|length }}</div>
+            <div>Categorías totales registradas</div>
+        </div>
+
+        <!-- Agregar nueva categoría -->
+        <div class="section">
+            <div class="section-title">➕ Agregar Nueva Categoría</div>
+            
+            <div id="message-container"></div>
+            
+            <form id="addCategoryForm" class="add-category-form">
+                <div class="form-group">
+                    <label for="categoryName">Nombre de la categoría:</label>
+                    <input type="text" id="categoryName" name="categoryName" 
+                           placeholder="Ej: PANTALONES, ZAPATOS, etc." required>
+                </div>
+                <button type="submit" class="btn btn-primary">
+                    ➕ Agregar Categoría
+                </button>
+            </form>
+        </div>
+
+        <!-- Lista de categorías existentes -->
+        <div class="section">
+            <div class="section-title">📋 Categorías Existentes</div>
+            
+            <div class="categories-grid">
+                {% for category in categories %}
+                <div class="category-card">
+                    <div class="category-info">
+                        <div class="category-name">{{ category }}</div>
+                        <div class="category-count">
+                            {{ distribution.get(category, 0) }} productos
+                        </div>
+                    </div>
+                    <div class="category-actions">
+                        <button class="btn btn-danger" 
+                                onclick="deleteCategory('{{ category }}')">
+                            🗑️ Eliminar
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Manejar formulario de agregar categoría
+        document.getElementById('addCategoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const categoryName = document.getElementById('categoryName').value.trim();
+            
+            if (!categoryName) {
+                showMessage('error', 'Por favor ingresa un nombre de categoría válido');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/admin/api/categories', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ category: categoryName })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('success', result.message);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showMessage('error', result.error);
+                }
+                
+            } catch (error) {
+                showMessage('error', 'Error al agregar categoría: ' + error.message);
+            }
+        });
+
+        // Eliminar categoría
+        async function deleteCategory(category) {
+            if (!confirm(`¿Estás seguro de eliminar la categoría "${category}"?\n\nEsta acción no se puede deshacer.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/admin/api/categories/${encodeURIComponent(category)}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showMessage('success', result.message);
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showMessage('error', result.error);
+                }
+                
+            } catch (error) {
+                showMessage('error', 'Error al eliminar categoría: ' + error.message);
+            }
+        }
+
+        // Mostrar mensajes
+        function showMessage(type, message) {
+            const container = document.getElementById('message-container');
+            container.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            
+            // Auto-hide después de 5 segundos
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

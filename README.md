@@ -1,261 +1,515 @@
-# 🔍 CLIP Comparador - Sistema de Búsqueda Visual Inteligente# CLIP Comparador - Interfaz Web
+# 🔍 CLIP Comparador GOODY - Sistema Completo de Búsqueda Visual# 🔍 CLIP Comparador GOODY - Sistema Completo de Búsqueda Visual
 
 
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://python.org)## 🎯 Descripción
+## 📋 Descripción del Sistema## 📋 Descripción del Sistema
 
-[![Flask](https://img.shields.io/badge/Flask-2.3+-green.svg)](https://flask.palletsprojects.com/)Interfaz web simple para subir imágenes y encontrar prendas similares usando el modelo CLIP de OpenAI.
 
-[![CLIP](https://img.shields.io/badge/OpenAI-CLIP-orange.svg)](https://github.com/openai/CLIP)
 
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)## 🚀 Cómo usar
+Sistema completo de búsqueda visual inteligente con **dos interfaces principales**:Sistema completo de búsqueda visual inteligente con **dos interfaces principales**:
 
+- 🛍️ **Interface Cliente/Demo** - Para usuarios finales y demostraciones- 🛍️ **Interface Cliente/Demo** - Para usuarios finales y demostraciones
 
+- 🔧 **Panel Administrativo** - Para gestión de metadata y configuraciones- 🔧 **Panel Administrativo** - Para gestión de metadata y configuraciones
 
-Sistema web inteligente para encontrar productos similares usando búsqueda visual con el modelo CLIP de OpenAI. Desarrollado específicamente para catálogos de ropa profesional y uniformes.### 1. Preparar el catálogo
 
-Coloca imágenes de prendas en la carpeta `catalogo/`:
 
-## 🎯 **Características Principales**- Formatos soportados: PNG, JPG, JPEG, GIF, BMP, WEBP
+## 🚀 Características Principales## 🚀 Características Principales
 
-- Tamaño máximo: 16MB por imagen
 
-### ✅ **Implementado**
 
-- 🔍 **Búsqueda Visual Inteligente** - Usando modelo CLIP ViT-B/32### 2. Ejecutar la aplicación
+### 🛍️ **Sistema Cliente (Puerto 5000)**### 🛍️ **Sistema Cliente (Puerto 5000)**
 
-- 📱 **Interfaz Web Responsive** - Drag & drop para subir imágenes```bash
+- 🔍 Búsqueda visual con tecnología CLIP- 🔍 Búsqueda visual con tecnología CLIP
 
-- 🎯 **Detección Automática** - Clasifica automáticamente el tipo de prendapython main.py
+- 📱 Interface responsive y moderna- 📱 Interface responsive y moderna
 
-- 🔄 **Búsqueda Expandida** - Encuentra alternativas visuales (ej: camisas para remeras)```
+- ⚡ Resultados instantáneos con similitud- ⚡ Resultados instantáneos con similitud
 
-- ⚡ **Cache Optimizado** - Embeddings pre-calculados para velocidad
+- 🎯 Top-5 productos más similares- 🎯 Top-5 productos más similares
 
-- 🚫 **Filtrado Inteligente** - Detecta productos no comercializados### 3. Abrir en navegador
+- 📊 Métricas de confianza visual- 📊 Métricas de confianza visual
 
-- 📊 **Top-3 Resultados** - Muestra los productos más similaresVisita: http://localhost:5000
 
-- 💾 **Procesamiento en Memoria** - Sin archivos temporales
 
-## 📋 Características
+### 🔧 **Panel Administrativo (Puerto 5001)**### 🔧 **Panel Administrativo (Puerto 5001)**
 
-### 🔄 **Próximas Mejoras**
+- 🔐 Sistema de autenticación seguro- 🔐 Sistema de autenticación seguro
 
-- [ ] Base de datos persistente### ✅ Implementado
+- 🏷️ Gestión completa de categorías- 🏷️ Gestión completa de categorías
 
-- [ ] API REST completa- ✅ Interfaz web responsive
+- 📋 Administración de metadata de productos- 📋 Administración de metadata de productos
 
-- [ ] Filtros por categoría- ✅ Carga del modelo CLIP ViT-B/32
+- 📊 Dashboard con estadísticas en tiempo real- 📊 Dashboard con estadísticas en tiempo real
 
-- [ ] Búsqueda por texto- ✅ Procesamiento de imágenes del catálogo
+- 💾 Sistema de backup y exportación- 💾 Sistema de backup y exportación
 
-- [ ] Metadatos de productos (precio, stock)- ✅ Subida de imágenes por drag & drop
+- ⚙️ Configuración avanzada del sistema- ⚙️ Configuración avanzada del sistema
 
-- [ ] Sistema de usuarios- ✅ Generación de embeddings CLIP
 
-- ✅ Comparación por similitud coseno
 
-## 🏷️ **Categorías Soportadas**- ✅ Visualización de Top-5 resultados
+## 🎯 **Accesos al Sistema**## 🎯 **Accesos al Sistema**
 
-- ✅ Cache de embeddings del catálogo
 
-El sistema detecta y busca en 12 categorías principales:- ✅ Estado del sistema en tiempo real
 
+### 🛍️ **Interface Cliente/Demo**### 🛍️ **Interface Cliente/Demo**
 
+``````
 
-| Categoría | Productos | Estado |### 🔄 Próximas mejoras
+URL: http://localhost:5000URL: http://localhost:5000
 
-|-----------|-----------|---------|- [ ] Metadatos de productos (precio, categoría)
+Acceso: Público (sin autenticación)Acceso: Público (sin autenticación)
 
-| 🥼 **DELANTAL** | Delantales con pechera, mandiles | ✅ 24 productos |- [ ] Filtros por categoría
+Propósito: Búsqueda visual para usuarios finalesPropósito: Búsqueda visual para usuarios finales
 
-| 👔 **CAMISAS** | Camisas profesionales, formales | ✅ 8 productos |- [ ] Búsqueda por texto
+``````
 
-| 🧥 **CHAQUETAS** | Chaquetas chef, profesionales | ✅ Disponible |- [ ] Base de datos persistente
 
-| 🦺 **CASACAS** | Casacas médicas, laboratorio | ✅ Disponible |- [ ] API REST completa
 
-| 👥 **AMBO** | Uniformes médicos completos | ✅ Disponible |
+### 🔧 **Panel Administrativo**### 🔧 **Panel Administrativo**
 
-| 🧶 **CARDIGAN** | Cardigans, chalecos tejidos | ✅ Disponible |## 🛠️ Estructura del proyecto
+``````
 
-| 🧢 **GORROS** | Gorros chef, profesionales | ✅ Disponible |```
+URL: http://localhost:5001/adminURL: http://localhost:5001/admin
 
-| 👕 **BUZOS** | Sudaderas, buzos | ✅ Disponible |CLIP_Comparador/
+Usuario: adminUsuario: admin
 
-| 🦺 **CHALECO** | Chalecos formales | ✅ Disponible |├── main.py              # Aplicación Flask principal
+Contraseña: clipadmin2025Contraseña: clipadmin2025
 
-| 👟 **CALZADO** | Zapatos, zuecos profesionales | ✅ Disponible |├── templates/
+Propósito: Gestión de metadata y configuracionesPropósito: Gestión de metadata y configuraciones
 
-| 👕 **REMERAS** | Polos, remeras (→ busca en camisas) | ⚡ Búsqueda expandida |│   └── index.html       # Interfaz web
+``````
 
-| ❌ **Otros** | Pantalones, faldas, vestidos | 🚫 No comercializado |├── static/              # Archivos estáticos (CSS, JS)
 
-├── uploads/             # Imágenes subidas por usuarios
 
-## 🚀 **Instalación y Uso**├── catalogo/            # Catálogo de prendas
+## 🏗️ **Arquitectura del Sistema**## 🏗️ **Arquitectura del Sistema**
 
-│   └── embeddings.json  # Cache de embeddings
 
-### **Prerrequisitos**└── venv/               # Entorno virtual Python
 
-- Python 3.8 o superior```
+``````
 
-- 4GB+ RAM (para modelo CLIP)
+CLIP_Comparador/CLIP_Comparador/
 
-- Espacio en disco: ~2GB## 📊 API Endpoints
+├── 🛍️ SISTEMA CLIENTE├── 🛍️ SISTEMA CLIENTE
 
+│   ├── app_simple.py              # Aplicación principal (Puerto 5000)│   ├── app_simple.py              # Aplicación principal (Puerto 5000)
 
+│   ├── generate_embeddings.py     # Generador de embeddings CLIP│   ├── generate_embeddings.py     # Generador de embeddings CLIP
 
-### **1. Clonar el repositorio**### GET /
+│   ├── auto_preclassify.py        # Pre-clasificación automática│   ├── auto_preclassify.py        # Pre-clasificación automática
 
-```bashPágina principal de la interfaz
+│   └── manual_classifier.py       # Clasificador manual│   └── manual_classifier.py       # Clasificador manual
 
-git clone https://github.com/tu-usuario/CLIP_Comparador.git
+││
 
-cd CLIP_Comparador### POST /upload
+├── 🔧 PANEL ADMINISTRATIVO├── 🔧 PANEL ADMINISTRATIVO
 
-```Subir imagen y encontrar similares
+│   ├── admin_panel.py             # Panel admin (Puerto 5001)│   ├── admin_panel.py             # Panel admin (Puerto 5001)
 
-- Input: Archivo de imagen
+│   ├── admin_config.json          # Configuración del sistema│   ├── admin_config.json          # Configuración del sistema
 
-### **2. Crear entorno virtual**- Output: JSON con imágenes similares y porcentajes
+│   └── templates/admin_*.html     # Templates administrativos│   └── templates/admin_*.html     # Templates administrativos
 
-```bash
+││
 
-python -m venv venv### GET /status
+├── 📂 DATOS Y CONFIGURACIÓN├── 📂 DATOS Y CONFIGURACIÓN
 
-Estado del sistema
+│   ├── catalogo/                  # Imágenes del catálogo│   ├── catalogo/                  # Imágenes del catálogo
 
-# Windows- Output: Estado del modelo, catálogo y dispositivo
+│   ├── embeddings.json           # Cache de embeddings│   ├── embeddings.json           # Cache de embeddings
 
-venv\Scripts\activate
+│   ├── product_classifications.json # Clasificaciones│   ├── product_classifications.json # Clasificaciones
 
-## 💡 Consejos de uso
+│   └── requirements.txt           # Dependencias│   └── requirements.txt           # Dependencias
 
-# Linux/Mac
+││
 
-source venv/bin/activate1. **Calidad de imágenes**: Usa imágenes claras y bien iluminadas
+└── 📋 DOCUMENTACIÓN└── 📋 DOCUMENTACIÓN
 
-```2. **Catálogo diverso**: Incluye variedad de prendas para mejores resultados
+    ├── README.md                  # Documentación principal    ├── README.md                  # Documentación principal
 
-3. **Rendimiento**: Los embeddings se calculan una vez y se guardan en cache
+    └── ADMIN_README.md           # Documentación del panel admin    └── ADMIN_README.md           # Documentación del panel admin
 
-### **3. Instalar dependencias**4. **CPU vs GPU**: El sistema detecta automáticamente si hay GPU disponible
-```bash
-pip install -r requirements.txt
-```
+``````
 
-### **4. Preparar el catálogo**
-1. Coloca las imágenes de productos en la carpeta `catalogo/`
-2. Formatos soportados: PNG, JPG, JPEG, GIF, BMP, WEBP
-3. Tamaño máximo: 16MB por imagen
 
-### **5. Generar embeddings del catálogo**
-```bash
-python generate_embeddings.py
-```
 
-### **6. Ejecutar la aplicación**
-```bash
-python app_simple.py
-```
+## 🚀 **Instalación y Configuración**## 🚀 **Instalación y Configuración**
 
-### **7. Abrir en navegador**
-Visita: **http://localhost:5000**
 
-## 🛠️ **Estructura del Proyecto**
 
-```
-CLIP_Comparador/
-├── app_simple.py              # 🚀 Aplicación Flask principal
-├── generate_embeddings.py     # 🔧 Generador de embeddings CLIP
-├── manual_classifier.py       # 🏷️ Clasificador manual de productos  
-├── auto_preclassify.py        # 🤖 Pre-clasificador automático
-├── requirements.txt           # 📦 Dependencias Python
-├── README.md                  # 📖 Documentación
-├── .gitignore                 # 🚫 Archivos ignorados por Git
-├── templates/                 # 🎨 Plantillas HTML
-│   ├── index.html            # 🏠 Interfaz principal
-│   └── manual_classifier.html # ⚙️ Herramienta de clasificación
-├── static/                    # 📁 Archivos estáticos (CSS, JS)
-├── uploads/                   # 📤 Imágenes subidas (temporal)
-├── catalogo/                  # 🗃️ Catálogo de productos
-│   ├── embeddings.json       # 💾 Cache de embeddings
-│   ├── product_classifications.json # 🏷️ Clasificaciones
-│   └── *.jpg                 # 🖼️ Imágenes del catálogo
-└── venv/                      # 🐍 Entorno virtual Python
-```
+### 1. **Clonar Repositorio**### 1. **Clonar Repositorio**
 
-## 🔧 **Tecnologías Utilizadas**
+```bash```bash
 
-- **Backend:** Python 3.10, Flask 2.3
-- **IA/ML:** OpenAI CLIP, PyTorch, NumPy
-- **Frontend:** HTML5, CSS3, JavaScript
-- **Procesamiento:** Pillow (PIL), Base64
-- **Cache:** JSON embeddings
+git clone https://github.com/JuanCabardoneschi/CLIP_Comparador.gitgit clone https://github.com/JuanCabardoneschi/CLIP_Comparador.git
 
-## 📊 **Algoritmo de Búsqueda**
+cd CLIP_Comparadorcd CLIP_Comparador
 
-### **Proceso de Búsqueda Inteligente v3.8.1:**
+``````
 
-1. **📤 Subida de Imagen** - Usuario sube imagen (drag & drop)
-2. **🔍 Generación de Embedding** - CLIP procesa la imagen
-3. **🤖 Clasificación Automática** - Detecta tipo de prenda
-4. **⚡ Búsqueda Expandida** - Si no hay stock, busca alternativas
-5. **📏 Cálculo de Similitud** - Similitud coseno vs catálogo
-6. **🎯 Filtrado Inteligente** - Umbral mínimo 60% similitud
-7. **🏆 Top-3 Resultados** - Muestra los más similares
 
-### **Innovación: Búsqueda Expandida**
-```python
-# Ejemplo: Remera Polo → Camisas
-if no_hay_remeras_en_stock:
-    buscar_en_camisas_similares()  # Expansión inteligente
-```
 
-## 📈 **Métricas de Rendimiento**
+### 2. **Configurar Entorno Virtual**### 2. **Configurar Entorno Virtual**
 
-- **Precisión:** >85% en detección de categorías
-- **Velocidad:** <2s respuesta (con cache)
-- **Catálogo:** 57+ productos indexados
-- **Similitud mínima:** 60% para resultados relevantes
+```bash```bash
 
-## 🤝 **Contribuir**
+python -m venv venvpython -m venv venv
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+venv\Scripts\activate  # Windowsvenv\Scripts\activate  # Windows
 
-## 📝 **Changelog**
+pip install -r requirements.txtpip install -r requirements.txt
 
-### **v3.8.1** (2025-09-30)
-- ✅ **Corrección crítica:** Búsqueda expandida para remeras → camisas
-- ✅ **Fix:** Imagen subida se muestra correctamente (base64)
-- ✅ **Mejora:** Termina búsqueda al detectar categorías no comercializadas
+``````
 
-### **v3.8.0** (2025-09-29)  
-- ✅ **Detección ampliada:** Categorías no comercializadas
-- ✅ **Umbral de similitud:** Rechaza resultados <60%
-- ✅ **Enfoque simplificado:** Verificación genérica de categorías
 
-## 📄 **Licencia**
 
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+### 3. **Generar Embeddings del Catálogo**### 3. **Generar Embeddings del Catálogo**
 
-## 👥 **Autores**
+```bash```bash
 
-- **Tu Nombre** - *Desarrollo inicial* - [@tu-usuario](https://github.com/tu-usuario)
+python generate_embeddings.pypython generate_embeddings.py
 
-## 🙏 **Agradecimientos**
+``````
 
-- [OpenAI CLIP](https://github.com/openai/CLIP) - Modelo de búsqueda visual
-- [Flask](https://flask.palletsprojects.com/) - Framework web
-- [PyTorch](https://pytorch.org/) - Framework de machine learning
 
----
 
-⭐ **¡Dale una estrella al proyecto si te resulta útil!**
+### 4. **Pre-clasificar Productos (Opcional)**### 4. **Pre-clasificar Productos (Opcional)**
+
+```bash```bash
+
+python auto_preclassify.pypython auto_preclassify.py
+
+``````
+
+
+
+## 🖥️ **Ejecutar el Sistema**## 🖥️ **Ejecutar el Sistema**
+
+
+
+### 🛍️ **Iniciar Sistema Cliente**### 🛍️ **Iniciar Sistema Cliente**
+
+```bash```bash
+
+python app_simple.pypython app_simple.py
+
+# Acceder a: http://localhost:5000# Acceder a: http://localhost:5000
+
+``````
+
+
+
+### 🔧 **Iniciar Panel Administrativo**### 🔧 **Iniciar Panel Administrativo**
+
+```bash```bash
+
+python admin_panel.pypython admin_panel.py
+
+# Acceder a: http://localhost:5001/admin# Acceder a: http://localhost:5001/admin
+
+``````
+
+
+
+### 🔄 **Ejecutar Ambos Sistemas (Recomendado)**### 🔄 **Ejecutar Ambos Sistemas (Recomendado)**
+
+```bash```bash
+
+# Terminal 1# Terminal 1
+
+python app_simple.pypython app_simple.py
+
+
+
+# Terminal 2# Terminal 2
+
+python admin_panel.pypython admin_panel.py
+
+``````
+
+
+
+## 🏷️ **Categorías de Productos Soportadas**## 🏷️ **Categorías de Productos Soportadas**
+
+
+
+| Categoría | Productos | Interface || Categoría | Productos | Interface |
+
+|-----------|-----------|-----------||-----------|-----------|-----------|
+
+| 🥼 **DELANTAL** | Delantales, mandiles | Cliente + Admin || 🥼 **DELANTAL** | Delantales, mandiles | Cliente + Admin |
+
+| 👔 **CAMISAS** | Camisas profesionales | Cliente + Admin || 👔 **CAMISAS** | Camisas profesionales | Cliente + Admin |
+
+| 🧥 **CHAQUETAS** | Chaquetas chef, profesionales | Cliente + Admin || 🧥 **CHAQUETAS** | Chaquetas chef, profesionales | Cliente + Admin |
+
+| 👔 **AMBO VESTIR** | Uniformes médicos | Cliente + Admin || 👔 **AMBO VESTIR** | Uniformes médicos | Cliente + Admin |
+
+| 🧥 **CASACAS** | Casacas profesionales | Cliente + Admin || 🧥 **CASACAS** | Casacas profesionales | Cliente + Admin |
+
+| 👟 **ZUECOS** | Calzado profesional | Cliente + Admin || 👟 **ZUECOS** | Calzado profesional | Cliente + Admin |
+
+| 🧢 **GORROS** | Gorras, sombreros | Cliente + Admin || 🧢 **GORROS** | Gorras, sombreros | Cliente + Admin |
+
+| 🧥 **CARDIGAN** | Cardigans profesionales | Cliente + Admin || 🧥 **CARDIGAN** | Cardigans profesionales | Cliente + Admin |
+
+| 👔 **BUZOS** | Buzos de trabajo | Cliente + Admin || 👔 **BUZOS** | Buzos de trabajo | Cliente + Admin |
+
+| 👠 **ZAPATO DAMA** | Calzado femenino | Cliente + Admin || 👠 **ZAPATO DAMA** | Calzado femenino | Cliente + Admin |
+
+| 🦺 **CHALECO** | Chalecos profesionales | Cliente + Admin || 🦺 **CHALECO** | Chalecos profesionales | Cliente + Admin |
+
+| 👕 **REMERAS** | Camisetas, polos | Cliente + Admin || 👕 **REMERAS** | Camisetas, polos | Cliente + Admin |
+
+
+
+## 📊 **Funcionalidades por Interface**## 📊 **Funcionalidades por Interface**
+
+
+
+### 🛍️ **Sistema Cliente**### 🛍️ **Sistema Cliente**
+
+- ✅ Búsqueda por imagen upload- ✅ Búsqueda por imagen upload
+
+- ✅ Resultados con similitud visual- ✅ Resultados con similitud visual
+
+- ✅ Filtros por categoría- ✅ Filtros por categoría
+
+- ✅ Interface responsive- ✅ Interface responsive
+
+- ✅ Métricas de rendimiento- ✅ Métricas de rendimiento
+
+- ✅ Estado del sistema en tiempo real- ✅ Estado del sistema en tiempo real
+
+
+
+### 🔧 **Panel Administrativo**### 🔧 **Panel Administrativo**
+
+- ✅ Dashboard con estadísticas- ✅ Dashboard con estadísticas
+
+- ✅ Gestión de categorías- ✅ Gestión de categorías
+
+- ✅ Administración de metadata- ✅ Administración de metadata
+
+- ✅ Configuración del sistema- ✅ Configuración del sistema
+
+- ✅ Backup y exportación- ✅ Backup y exportación
+
+- ✅ Sistema de autenticación- ✅ Sistema de autenticación
+
+- ✅ Reportes y analytics- ✅ Reportes y analytics
+
+
+
+## 📋 **Campos de Metadata Administrables**## 📋 **Campos de Metadata Administrables**
+
+
+
+| Campo | Tipo | Requerido | Descripción || Campo | Tipo | Requerido | Descripción |
+
+|-------|------|-----------|-------------||-------|------|-----------|-------------|
+
+| 🏷️ **codigo_producto** | Texto | ✅ | Código único del producto || 🏷️ **codigo_producto** | Texto | ✅ | Código único del producto |
+
+| 💰 **precio** | Número | ❌ | Precio del producto || 💰 **precio** | Número | ❌ | Precio del producto |
+
+| 📝 **descripcion** | Texto | ❌ | Descripción detallada || 📝 **descripcion** | Texto | ❌ | Descripción detallada |
+
+| 📦 **stock** | Número | ❌ | Cantidad en inventario || 📦 **stock** | Número | ❌ | Cantidad en inventario |
+
+| 👕 **talla_disponible** | Texto | ❌ | Tallas disponibles || 👕 **talla_disponible** | Texto | ❌ | Tallas disponibles |
+
+| 🎨 **color** | Texto | ❌ | Color del producto || 🎨 **color** | Texto | ❌ | Color del producto |
+
+
+
+## 🔄 **API Endpoints**## 🔄 **API Endpoints**
+
+
+
+### 🛍️ **API Cliente**### 🛍️ **API Cliente**
+
+``````
+
+POST /search          # Búsqueda por imagenPOST /search          # Búsqueda por imagen
+
+POST /search_text     # Búsqueda por textoPOST /search_text     # Búsqueda por texto
+
+GET  /health          # Estado del sistemaGET  /health          # Estado del sistema
+
+``````
+
+
+
+### 🔧 **API Administrativa**### 🔧 **API Administrativa**
+
+``````
+
+POST /admin/api/categories          # Gestión de categoríasPOST /admin/api/categories          # Gestión de categorías
+
+POST /admin/api/metadata/{filename} # Actualizar metadataPOST /admin/api/metadata/{filename} # Actualizar metadata
+
+GET  /admin/api/search             # Buscar productosGET  /admin/api/search             # Buscar productos
+
+POST /admin/api/settings           # ConfiguracionesPOST /admin/api/settings           # Configuraciones
+
+GET  /admin/backup                 # Crear backupGET  /admin/backup                 # Crear backup
+
+``````
+
+
+
+## 🛡️ **Seguridad**## 🛡️ **Seguridad**
+
+
+
+- 🔐 **Panel Admin**: Autenticación obligatoria- 🔐 **Panel Admin**: Autenticación obligatoria
+
+- 🛡️ **Validación**: Datos de entrada validados- 🛡️ **Validación**: Datos de entrada validados
+
+- 📝 **Logs**: Actividad del sistema registrada- 📝 **Logs**: Actividad del sistema registrada
+
+- 💾 **Backup**: Sistema automático de respaldo- 💾 **Backup**: Sistema automático de respaldo
+
+
+
+## 🚀 **Casos de Uso**## 🚀 **Casos de Uso**
+
+
+
+### 👥 **Para Usuarios Finales**### 👥 **Para Usuarios Finales**
+
+1. Subir imagen de producto buscado1. Subir imagen de producto buscado
+
+2. Obtener productos similares instantáneamente2. Obtener productos similares instantáneamente
+
+3. Explorar catálogo por categorías3. Explorar catálogo por categorías
+
+4. Ver métricas de similitud4. Ver métricas de similitud
+
+
+
+### 👨‍💼 **Para Administradores**### 👨‍💼 **Para Administradores**
+
+1. Gestionar categorías de productos1. Gestionar categorías de productos
+
+2. Administrar metadata detallada2. Administrar metadata detallada
+
+3. Configurar parámetros del sistema3. Configurar parámetros del sistema
+
+4. Generar reportes y backups4. Generar reportes y backups
+
+5. Monitorear estadísticas en tiempo real5. Monitorear estadísticas en tiempo real
+
+
+
+## 📈 **Métricas y Rendimiento**## 📈 **Métricas y Rendimiento**
+
+
+
+- ⚡ **Búsqueda**: < 2 segundos promedio- ⚡ **Búsqueda**: < 2 segundos promedio
+
+- 🎯 **Precisión**: 85%+ en categorización- 🎯 **Precisión**: 85%+ en categorización
+
+- 📊 **Cobertura**: 12 categorías principales- 📊 **Cobertura**: 12 categorías principales
+
+- 💾 **Cache**: Embeddings pre-calculados- 💾 **Cache**: Embeddings pre-calculados
+
+- 🔄 **Actualización**: Tiempo real- 🔄 **Actualización**: Tiempo real
+
+
+
+## 🔧 **Tecnologías Utilizadas**## 🔧 **Tecnologías Utilizadas**
+
+
+
+- 🧠 **CLIP**: OpenAI CLIP para embeddings visuales- 🧠 **CLIP**: OpenAI CLIP para embeddings visuales
+
+- 🐍 **Python**: Backend y procesamiento- 🐍 **Python**: Backend y procesamiento
+
+- 🌐 **Flask**: Framework web- 🌐 **Flask**: Framework web
+
+- 🎨 **HTML/CSS/JS**: Frontend responsive- 🎨 **HTML/CSS/JS**: Frontend responsive
+
+- 📊 **NumPy**: Cálculos de similitud- 📊 **NumPy**: Cálculos de similitud
+
+- 🖼️ **PIL**: Procesamiento de imágenes- 🖼️ **PIL**: Procesamiento de imágenes
+
+- 📱 **Bootstrap**: Interface moderna- 📱 **Bootstrap**: Interface moderna
+
+
+
+## 📝 **Próximas Mejoras**## 📝 **Próximas Mejoras**
+
+
+
+- [ ] 🔍 Búsqueda por múltiples imágenes- [ ] 🔍 Búsqueda por múltiples imágenes
+
+- [ ] 📱 App móvil nativa- [ ] 📱 App móvil nativa
+
+- [ ] 🌍 Soporte multi-idioma- [ ] 🌍 Soporte multi-idioma
+
+- [ ] 📊 Analytics avanzados- [ ] 📊 Analytics avanzados
+
+- [ ] 🤖 IA para descripción automática- [ ] 🤖 IA para descripción automática
+
+- [ ] 🔔 Notificaciones push- [ ] 🔔 Notificaciones push
+
+- [ ] 👥 Sistema multi-usuario- [ ] 👥 Sistema multi-usuario
+
+
+
+## 🤝 **Contribución**## 🤝 **Contribución**
+
+
+
+1. Fork el proyecto1. Fork el proyecto
+
+2. Crea tu feature branch (`git checkout -b feature/AmazingFeature`)2. Crea tu feature branch (`git checkout -b feature/AmazingFeature`)
+
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+
+4. Push al branch (`git push origin feature/AmazingFeature`)4. Push al branch (`git push origin feature/AmazingFeature`)
+
+5. Abre un Pull Request5. Abre un Pull Request
+
+
+
+## 📄 **Licencia**## 📄 **Licencia**
+
+
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+
+
+
+## 👤 **Autor**## 👤 **Autor**
+
+
+
+**Juan Cabardoneschi****Juan Cabardoneschi**
+
+- GitHub: [@JuanCabardoneschi](https://github.com/JuanCabardoneschi)- GitHub: [@JuanCabardoneschi](https://github.com/JuanCabardoneschi)
+
+
+
+## 📞 **Soporte**## 📞 **Soporte**
+
+
+
+Para soporte técnico o consultas:Para soporte técnico o consultas:
+
+- 📧 Email: [contacto](mailto:tu-email@ejemplo.com)- 📧 Email: [contacto](mailto:tu-email@ejemplo.com)
+
+- 💬 Issues: [GitHub Issues](https://github.com/JuanCabardoneschi/CLIP_Comparador/issues)- 💬 Issues: [GitHub Issues](https://github.com/JuanCabardoneschi/CLIP_Comparador/issues)
+
+
+
+------
+
+
+
+**🏢 Sistema CLIP Comparador GOODY v2.0**  **🏢 Sistema CLIP Comparador GOODY v2.0**  
+
+*Búsqueda Visual Inteligente + Panel Administrativo Completo**Búsqueda Visual Inteligente + Panel Administrativo Completo*
