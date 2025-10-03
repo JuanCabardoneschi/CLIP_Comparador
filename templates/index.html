@@ -270,10 +270,11 @@
 
         .similar-item img {
             width: 100%;
-            height: 150px;
-            object-fit: cover;
+            height: 200px;
+            object-fit: contain;  /* Cambiado de 'cover' a 'contain' para mostrar imagen completa */
             border-radius: 10px;
             margin-bottom: 10px;
+            background-color: #f8f9fa;  /* Fondo suave para imágenes con aspectos diferentes */
         }
 
         .similarity-score {
@@ -676,13 +677,10 @@
                         itemDiv.className = 'similar-item';
                         
                         itemDiv.innerHTML = `
-                            <img src="/catalogo/${item.filename}" alt="${item.filename}">
+                            <img src="/catalogo/${item.filename}" alt="Producto similar">
                             <div style="text-align: center; margin-top: 10px;">
                                 <div class="similarity-score">
                                     ${item.similarity_percent}% similar
-                                </div>
-                                <div style="margin-top: 5px; font-size: 0.9em; color: #6b7280;">
-                                    ${item.filename}
                                 </div>
                             </div>
                         `;
