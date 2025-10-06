@@ -12,9 +12,20 @@ def find_similar_images(query_embedding, top_k=3, query_type=None, query_confide
     Retorna: lista de tuplas (filename, score) o cadena especial para categorías no comercializadas
     """
     
+    # Asegurar que los embeddings estén cargados
+    from core.classification import load_catalog_embeddings, get_catalog_embeddings
+    
     catalog_embeddings = get_catalog_embeddings()
-    if not catalog_embeddings or query_embedding is None:
-        print(f"Error: catalog_embeddings={len(catalog_embeddings) if catalog_embeddings else 0}, query_embedding={query_embedding is not None}")
+    if not catalog_embeddings:
+        # Intentar cargar embeddings
+        if load_catalog_embeddings():
+            catalog_embeddings = get_catalog_embeddings()
+        else:
+            print(f"❌ No se pudieron cargar los embeddings del catálogo")
+            return []
+    
+    if query_embedding is None:
+        print(f"❌ Query embedding es None")
         return []
 
     print(f"Catálogo tiene {len(catalog_embeddings)} embeddings")
@@ -24,7 +35,7 @@ def find_similar_images(query_embedding, top_k=3, query_type=None, query_confide
     from config.categories import is_commercial_category, is_non_commercial_category
     
     # Si no se detectó ninguna categoría o confianza muy baja, usar descripción general
-    if not query_type or query_confidence < 0.15:
+    if not query_type or query_confidence < 0.19:  # Bajar umbral a 19% (para capturar 18%)
         print(f"❓ No se detectó categoría clara (confianza: {query_confidence:.3f})")
         return "CATEGORIA_NO_DETECTADA"
     

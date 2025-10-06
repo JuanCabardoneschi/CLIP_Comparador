@@ -42,9 +42,12 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.6"
-BUILD_DATE = "2025-10-02"
+VERSION = "3.9.7"
+BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.7": ("FIX CLIP HALLUCINATIONS: Reordenados prompts priorizando "
+              "categorías generales (texto, personas, etc.) antes que comerciales "
+              "para evitar detección incorrecta de ropa en imágenes no comerciales"),
     "3.9.6": ("FIX EXIF: Corregir import error + detectión automática "
               "por dimensiones como fallback para móviles"),
     "3.9.5": ("DEBUG: Logs detallados para diagnosticar problema "
@@ -101,7 +104,10 @@ def create_app():
 app = create_app()
 
 # Importar configuración centralizada de categorías
-from config.categories import get_clip_categories, is_commercial_category  # noqa: E401
+from config.categories import get_clip_categories, get_commercial_categories, is_commercial_category  # noqa: E401
+
+# Importar función centralizada de búsqueda
+from core.search_engine import find_similar_images  # noqa: E401
 
 # Configuración de autenticación
 login_manager = LoginManager()
@@ -306,33 +312,46 @@ def fix_image_orientation(image):
 
 def get_general_image_description(image):
     """
-    Obtener descripción general de la imagen usando CLIP
-    Esta función describe CUALQUIER imagen, no solo ropa - EN ESPAÑOL
+    Obtener descripción LIBRE usando las categorías GOODY + categorías generales
+    CLIP intentará detectar primero nuestros productos comerciales
     """
     try:
         # Tokenizar la imagen
         image_tensor = preprocess(image).unsqueeze(0).to(device)
         
-        # Categorías generales para descripción libre - EN ESPAÑOL
-        general_categories = [
-            "automóvil deportivo rojo, coche vehículo",
-            "persona con ropa profesional, uniforme de trabajo", 
-            "camisa blanca con cuello, blusa formal",
-            "pantalón negro largo, jean de vestir",
-            "delantal de cocina marrón, mandil profesional",
-            "teléfono móvil smartphone, dispositivo celular",
-            "computadora portátil, laptop tecnología",
-            "comida plato de cocina, alimento preparado",
-            "animal mascota perro gato, pet doméstico",
-            "planta árbol flor, naturaleza verde",
-            "mueble silla mesa, mobiliario del hogar",
-            "herramienta equipo de trabajo, hardware",
-            "paisaje vista exterior, escenario natural",
-            "edificio construcción estructura, arquitectura"
+        # CATEGORÍAS GENERALES - Para contenido no comercial (PRIMERO para evitar confusión)
+        general_prompts = [
+            "a photo of text and writing",
+            "a photo of documents and papers",
+            "a photo of written text and letters",
+            "a photo of newspaper or magazine",
+            "a photo of people and faces",
+            "a photo of animals and pets",
+            "a photo of vehicles and cars",
+            "a photo of food and meals",
+            "a photo of technology devices",
+            "a photo of buildings and architecture",
+            "a photo of nature and landscapes",
+            "a photo of furniture and objects",
+            "a photo of tools and equipment"
         ]
         
-        # Tokenizar categorías generales
-        text_tokens = clip.tokenize(general_categories).to(device)
+        # CATEGORÍAS COMERCIALES GOODY - Usar directamente nuestras 12 categorías
+        commercial_categories = get_commercial_categories()  # Las 12 categorías oficiales GOODY
+        
+        # Convertir a prompts específicos para CLIP
+        commercial_prompts = []
+        for category in commercial_categories:
+            # Usar cada categoría GOODY como prompt directo
+            commercial_prompts.append(f"a photo of {category}")
+        
+        print(f"📋 Usando {len(general_prompts)} categorías generales + {len(commercial_prompts)} categorías comerciales GOODY")
+        
+        # Combinar prompts: PRIMERO generales, LUEGO comerciales
+        all_prompts = general_prompts + commercial_prompts
+        
+        # Tokenizar prompts
+        text_tokens = clip.tokenize(all_prompts).to(device)
         
         with torch.no_grad():
             # Obtener embeddings
@@ -346,443 +365,137 @@ def get_general_image_description(image):
             # Calcular similitudes
             similarities = (image_features @ text_features.T).squeeze(0)
             
-            # Obtener la descripción más probable
-            best_match_idx = similarities.argmax().item()
-            confidence = float(similarities[best_match_idx].item())
+            # Obtener los mejores matches
+            top_k = min(5, len(similarities))
+            top_similarities = torch.topk(similarities, top_k)
             
-            description = general_categories[best_match_idx]
+            # Debug: mostrar top 5 descripciones
+            print(f"🔍 Top {top_k} detecciones de CLIP:")
+            descriptions = []
+            for i, (sim_idx, sim_val) in enumerate(zip(top_similarities.indices, top_similarities.values)):
+                prompt = all_prompts[sim_idx.item()]
+                confidence = float(sim_val.item())
+                descriptions.append((prompt, confidence))
+                
+                # Marcar si es comercial o general (NUEVO ORDEN: generales primero)
+                is_commercial = sim_idx.item() >= len(general_prompts)
+                marker = "🏪" if is_commercial else "🌐"
+                print(f"   {i+1}. {marker} {prompt}: {confidence:.3f} ({confidence*100:.1f}%)")
             
-            return description, confidence
+            # Analizar la mejor descripción
+            best_prompt = descriptions[0][0]
+            best_confidence = descriptions[0][1]
+            best_idx = top_similarities.indices[0].item()
             
-    except Exception:
-        return None, 0.0
+            # Determinar si es comercial o general (NUEVO ORDEN: generales primero)
+            is_commercial_detection = best_idx >= len(general_prompts)
+            
+            # Extraer descripción limpia
+            if is_commercial_detection:
+                # Es una categoría comercial - extraer de la categoría GOODY original
+                commercial_idx = best_idx - len(general_prompts)
+                original_category = commercial_categories[commercial_idx]
+                # Extraer el primer término de la categoría GOODY
+                clean_description = original_category.split(',')[0].strip()
+                print(f"🏪 Categoría GOODY detectada: '{clean_description}'")
+            else:
+                # Es una categoría general
+                if "text" in best_prompt.lower() or "document" in best_prompt.lower():
+                    clean_description = "texto documento"
+                elif "people" in best_prompt.lower() or "face" in best_prompt.lower():
+                    clean_description = "persona"
+                elif "animal" in best_prompt.lower() or "pet" in best_prompt.lower():
+                    clean_description = "animal"
+                elif "vehicle" in best_prompt.lower() or "car" in best_prompt.lower():
+                    clean_description = "vehículo"
+                elif "food" in best_prompt.lower() or "meal" in best_prompt.lower():
+                    clean_description = "comida"
+                else:
+                    # Extraer palabra clave del prompt
+                    clean_description = best_prompt.replace("a photo of", "").strip()
+                print(f"🌐 Contenido general detectado: '{clean_description}'")
+            
+            print(f"🎯 Descripción extraída: '{clean_description}' {'(COMERCIAL)' if is_commercial_detection else '(GENERAL)'}")
+            
+            return clean_description, best_confidence
+            
+    except Exception as e:
+        print(f"❌ Error en descripción: {e}")
+        return "contenido no identificado", 0.0
 
 
 def classify_query_image(image):
-    """Clasificar imagen usando CLIP text embeddings
-    - acepta path o objeto PIL Image"""
+    """
+    Flujo con descripción LIBRE de CLIP:
+    1. CLIP describe libremente lo que ve (sin categorías forzadas)
+    2. Analizamos si esa descripción coincide con nuestros productos comerciales
+    3. Si coincide -> clasificación específica, si no -> informar descripción libre
+    """
     global model, preprocess, device
     try:
         # Determinar si es un path o un objeto Image
         if isinstance(image, str):
             image = Image.open(image)
-            # Corregir orientación EXIF solo para archivos  # noqa: E501
-            # (no para objetos ya procesados)
             image = fix_image_orientation(image)
         else:
             image = image
             
         image = image.convert('RGB')
-            
-        image_tensor = preprocess(image).unsqueeze(0).to(device)
         
-        # Categorías UNIFICADAS desde config/categories.py
-        categories = get_clip_categories()
-        print(f"📋 Usando {len(categories)} categorías desde config/categories.py")
-        print(f"📝 Primera categoría: {categories[0][:50]}...")
-        print(f"📝 Última categoría: {categories[-1][:50]}...")
+        # PASO 1: Obtener descripción LIBRE de CLIP (sin limitaciones)
+        free_description, free_confidence = get_general_image_description(image)
+        print(f"🔍 CLIP descripción libre: {free_description}")
+        print(f"📊 Confianza descripción libre: {free_confidence:.3f} ({free_confidence*100:.1f}%)")
         
-        # Tokenizar categorías
-        text_tokens = clip.tokenize(categories).to(device)
+        # PASO 2: NOSOTROS analizamos si coincide con productos comerciales
+        if is_commercial_category(free_description):
+            print(f"✅ Descripción libre coincide con categoría comercial")
+            
+            # PASO 3: Si es comercial, clasificar específicamente con categorías GOODY
+            image_tensor = preprocess(image).unsqueeze(0).to(device)
+            commercial_categories = get_commercial_categories()
+            
+            text_tokens_commercial = clip.tokenize(commercial_categories).to(device)
+            
+            with torch.no_grad():
+                image_features = model.encode_image(image_tensor)
+                text_features_commercial = model.encode_text(text_tokens_commercial)
+                
+                # Normalizar
+                image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+                text_features_commercial = text_features_commercial / text_features_commercial.norm(dim=-1, keepdim=True)
+                
+                # Calcular similitudes con categorías comerciales específicas
+                similarities_commercial = (image_features @ text_features_commercial.T).squeeze(0)
+                
+                # Obtener mejor match comercial específico
+                best_commercial_idx = similarities_commercial.argmax().item()
+                best_commercial_confidence = float(similarities_commercial[best_commercial_idx].item())
+                best_commercial_category = commercial_categories[best_commercial_idx]
+                
+                # Debug: mostrar top 3 comerciales específicas
+                top_similarities = torch.topk(similarities_commercial, min(3, len(similarities_commercial)))
+                print(f"🔍 Top 3 categorías específicas GOODY:")
+                for i, (sim_idx, sim_val) in enumerate(zip(top_similarities.indices, top_similarities.values)):
+                    cat_name = commercial_categories[sim_idx.item()].split(',')[0].strip()
+                    print(f"   {i+1}. {cat_name}: {sim_val.item():.3f} ({sim_val.item()*100:.1f}%)")
+                
+                if best_commercial_confidence >= 0.19:  # Umbral para categoría específica
+                    category = best_commercial_category.split(',')[0].strip()
+                    print(f"✅ Categoría comercial específica: {category} ({best_commercial_confidence*100:.1f}%)")
+                    return category, best_commercial_confidence
+                else:
+                    print(f"❌ Confianza baja en categorías específicas (mejor: {best_commercial_confidence*100:.1f}%)")
+                    # Es comercial pero no específico suficiente
+                    return free_description, free_confidence
         
-        with torch.no_grad():
-            # Obtener embeddings de imagen y texto
-            image_features = model.encode_image(image_tensor)
-            text_features = model.encode_text(text_tokens)
+        # PASO 4: No es categoría comercial - usar descripción libre de CLIP
+        print(f"🚫 Descripción libre NO coincide con categorías comerciales")
+        return f"NO_COMERCIAL:{free_description}", free_confidence
             
-            # Normalizar
-            image_features /= image_features.norm(dim=-1, keepdim=True)
-            text_features /= text_features.norm(dim=-1, keepdim=True)
-            
-            # Calcular similitudes
-            similarities = (image_features @ text_features.T).squeeze(0)
-            
-            # Obtener la categoría más probable
-            best_match_idx = similarities.argmax().item()
-            confidence = float(similarities[best_match_idx].item())  # Convertir a float de Python
-            
-            category = categories[best_match_idx].split(',')[0].strip()
-            
-            # Debug: mostrar top 3 similitudes
-            top_similarities = torch.topk(similarities, min(3, len(similarities)))
-            print(f"🔍 Top 3 similitudes:")
-            for i, (sim_idx, sim_val) in enumerate(zip(top_similarities.indices, top_similarities.values)):
-                cat_name = categories[sim_idx.item()].split(',')[0].strip()
-                print(f"   {i+1}. {cat_name}: {sim_val.item():.3f} ({sim_val.item()*100:.1f}%)")
-            
-            # UMBRAL MÍNIMO DE CONFIANZA - Si es muy bajo, no hay match claro
-            MIN_CONFIDENCE_THRESHOLD = 0.15  # Bajamos a 15% para detectar más objetos
-            
-            if confidence < MIN_CONFIDENCE_THRESHOLD:
-                return None, confidence
-            
-            return category, confidence
-            
-    except Exception:
+    except Exception as e:
+        print(f"❌ Error en clasificación: {e}")
         return None, 0.0
-
-def find_similar_images(query_embedding, top_k=3, query_type=None, query_confidence=0.0):
-    """
-    VERSIÓN 3.3.0: MODOS INTELIGENTES COMPLETOS 
-    Sistema específico para todas las 12 categorías profesionales
-    """
-    
-    if not catalog_embeddings or query_embedding is None:
-        return []
-
-    # PASO 1: Calcular similitudes visuales base
-    similarities = []
-    for filename, catalog_embedding in catalog_embeddings.items():
-        visual_similarity = calculate_similarity(query_embedding, catalog_embedding)
-        similarities.append((filename, visual_similarity))
-
-    # PASO 2: Cargar clasificaciones
-    try:
-        with open('catalogo/product_classifications.json', 'r', encoding='utf-8') as f:
-            classifications = json.load(f)
-    except:
-        classifications = {}
-
-    # PASO 3: SISTEMA DE MODOS INTELIGENTES COMPLETO CON VERIFICACIÓN DE DISPONIBILIDAD
-    results = []
-    
-    # VERIFICAR SI HAY CATEGORÍA VÁLIDA DETECTADA
-    if not query_type:
-        return []
-    
-    # =================== CATEGORÍA: BUZOS (Evaluar ANTES que gorros) ===================
-    if query_type and any(word in query_type.lower() for word in ["buzo", "hoodie", "sudadera", "frizado"]):
-        # Verificar disponibilidad antes de buscar
-        has_products, _ = _check_category_availability("buzo", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_strict(similarities, classifications,
-                                          ["BUZO", "HOODIE", "SUDADERA", "FRIZADO"], "🏃", 0.65, top_k)
-    
-    # =================== CATEGORÍA: CAMISAS ===================
-    elif query_type and any(word in query_type.lower() for word in ["camisa", "shirt"]):
-        has_products, _ = _check_category_availability("camisa", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_intelligent(similarities, classifications, 
-                                               ["CAMISA", "SHIRT"], "👔", 0.65, top_k)
-    
-    # =================== CATEGORÍA: GORROS/GORRAS (Después de buzos) ===================
-    elif query_type and any(word in query_type.lower() for word in ["gorro", "gorra", "cap", "hat", "boina"]) and "buzo" not in query_type.lower():
-        
-        has_products, _ = _check_category_availability("gorro", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_strict(similarities, classifications,
-                                          ["GORRO", "GORRA", "CAP", "HAT", "BOINA"], "🧢", 0.60, top_k)
-    
-    # =================== CATEGORÍA: CHAQUETAS ===================
-    elif query_type and any(word in query_type.lower() for word in ["chaqueta", "jacket"]):
-        
-        has_products, _ = _check_category_availability("chaqueta", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_intelligent(similarities, classifications,
-                                               ["CHAQUETA", "JACKET", "CAMISA", "CASACA", "CARDIGAN", "AMBO"], "🧥", 0.65, top_k)
-    
-    # =================== CATEGORÍA: DELANTALES ===================
-    elif query_type and any(word in query_type.lower() for word in ["delantal", "mandil", "pechera"]):
-        
-        has_products, _ = _check_category_availability("delantal", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_strict(similarities, classifications,
-                                          ["DELANTAL", "MANDIL", "PECHERA", "JUMPER"], "🥽", 0.60, top_k)
-    
-    # =================== CATEGORÍA: AMBOS ===================
-    elif query_type and any(word in query_type.lower() for word in ["ambo", "uniforme medico", "scrub"]):
-        
-        has_products, _ = _check_category_availability("ambo", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_intelligent(similarities, classifications,
-                                               ["AMBO", "UNIFORME", "SCRUB", "CASACA"], "🏥", 0.65, top_k)
-    
-    # =================== CATEGORÍA: CASACAS ===================
-    elif query_type and any(word in query_type.lower() for word in ["casaca", "blazer"]):
-        
-        has_products, _ = _check_category_availability("casaca", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_intelligent(similarities, classifications,
-                                               ["CASACA", "BLAZER", "CHAQUETA", "CAMISA"], "🤵", 0.65, top_k)
-    
-    # =================== CATEGORÍA: CALZADO ===================
-    elif query_type and any(word in query_type.lower() for word in ["zapato", "zueco", "calzado", "shoe"]):
-        
-        has_products, _ = _check_category_availability("zapato", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_strict(similarities, classifications,
-                                          ["ZAPATO", "ZUECO", "CALZADO", "SHOE"], "👟", 0.60, top_k)
-    
-    # =================== CATEGORÍA: CARDIGANS ===================
-    elif query_type and any(word in query_type.lower() for word in ["cardigan", "chaleco", "vest"]):
-        
-        has_products, _ = _check_category_availability("cardigan", classifications)
-        if not has_products:
-            return []
-        results = _filter_category_strict(similarities, classifications,
-                                          ["CARDIGAN", "CHALECO", "VEST"], "🧶", 0.65, top_k)
-    
-    # =================== CATEGORÍA: REMERAS ===================
-    elif query_type and any(word in query_type.lower() for word in ["remera", "polo", "t-shirt", "playera"]):
-        
-        has_remeras, _ = _check_category_availability("remera", classifications)
-        
-        if has_remeras:
-            # Si hay remeras, buscar solo remeras
-            results = _filter_category_strict(similarities, classifications,
-                                              ["REMERA", "POLO", "T-SHIRT", "PLAYERA"], "👕", 0.65, top_k)
-        else:
-            # Si no hay remeras, buscar en camisas (visualmente similares)
-            has_camisas, _ = _check_category_availability("camisa", classifications)
-            if has_camisas:
-                results = _filter_category_strict(similarities, classifications,
-                                                  ["CAMISA", "SHIRT", "BLUSA"], "👔", 0.60, top_k)
-            else:
-                return []
-    
-    # =================== MODO GENERAL (Para categorías no mapeadas específicamente) ===================
-    else:
-        results = _apply_general_search(similarities, classifications, query_type, query_confidence, top_k)
-
-    # PASO 4: Verificar resultados finales Y CALIDAD DE SIMILITUD
-    if not results:
-        return []
-
-    # VERIFICACIÓN DE SIMILITUD VISUAL MÍNIMA - Nueva función v3.7.0
-    max_similarity = max(score for _, score in results)
-    avg_similarity = sum(score for _, score in results) / len(results)
-    
-    MIN_VISUAL_SIMILARITY = 0.60  # 60% mínimo para considerar relevante
-    
-    if max_similarity < MIN_VISUAL_SIMILARITY:
-        return []
-    
-    if avg_similarity < 0.45:  # Promedio muy bajo indica mala clasificación
-        return []
-
-    return results
-
-def _filter_category_strict(similarities, classifications, keywords, emoji, threshold, top_k):
-    """Filtrado estricto: solo productos de la categoría específica - MÁXIMO 3 RESULTADOS"""
-    all_category_items = []  # Todos los items de la categoría
-    
-    for filename, visual_sim in similarities:
-        basename = os.path.basename(filename)
-        is_category = False
-        
-        # Verificar por nombre
-        if any(word in basename.upper() for word in keywords):
-            is_category = True
-        # Verificar por clasificación
-        elif basename in classifications:
-            cat = classifications[basename]['category'].lower()
-            if any(word.lower() in cat for word in keywords):
-                is_category = True
-        
-        if is_category:
-            all_category_items.append((filename, visual_sim))
-    
-    # SI NO HAY PRODUCTOS DE LA CATEGORÍA, RETORNAR VACÍO
-    if not all_category_items:
-        return []
-    
-    # Ordenar por similitud (mayor a menor)
-    all_category_items.sort(key=lambda x: x[1], reverse=True)
-    
-    # SIEMPRE devolver los TOP 3 de la categoría (o los que haya si son menos)
-    results = all_category_items[:top_k]
-    
-    # Mostrar los resultados seleccionados
-    for filename, visual_sim in results:
-        basename = os.path.basename(filename)
-    
-    return results
-
-def _filter_category_intelligent(similarities, classifications, keywords, emoji, threshold, top_k):
-    """Filtrado inteligente: categoría principal + productos relacionados con boost"""
-    category_products = []
-    related_products = []
-    
-    for filename, visual_sim in similarities:
-        basename = os.path.basename(filename)
-        is_main_category = False
-        is_related = False
-        
-        # Verificar categoría principal (primer keyword)
-        main_keyword = keywords[0]
-        if main_keyword in basename.upper():
-            is_main_category = True
-        elif basename in classifications:
-            cat = classifications[basename]['category'].lower()
-            if main_keyword.lower() in cat:
-                is_main_category = True
-        
-        # Verificar categorías relacionadas
-        if not is_main_category:
-            if any(word in basename.upper() for word in keywords[1:]):
-                is_related = True
-            elif basename in classifications:
-                cat = classifications[basename]['category'].lower()
-                if any(word.lower() in cat for word in keywords[1:]):
-                    is_related = True
-        
-        if is_main_category:
-            # Boost para categoría principal
-            boosted_score = min(0.99, visual_sim * 1.15)
-            category_products.append((filename, boosted_score))
-        elif is_related:
-            # Productos relacionados sin penalización excesiva
-            related_products.append((filename, visual_sim))
-    
-    # Combinar resultados priorizando categoría principal
-    all_products = category_products + related_products
-    all_products.sort(key=lambda x: x[1], reverse=True)
-    
-    results = [(f, s) for f, s in all_products if s > threshold][:top_k]
-    
-    return results
-
-def _check_category_availability(query_type, classifications):
-    """Verificar si la categoría detectada corresponde a productos comercializados por GOODY"""
-    if not query_type:
-        return True, []
-    
-    query_lower = query_type.lower()
-    available_products = []
-    
-    # Mapeo de categorías VÁLIDAS (productos que SÍ comercializa GOODY)
-    goody_category_mappings = {
-        'buzo': ['BUZO', 'BUZOS', 'SUDADERA', 'HOODIE', 'FRIZADO'],
-        'camisa': ['CAMISA', 'CAMISAS', 'CAMISAS HOMBRE- DAMA', 'BLUSA', 'SHIRT'],
-        'gorro': ['GORRO', 'GORROS', 'GORROS – GORRAS', 'GORRA', 'BOINA', 'CAP'],
-        'chaqueta': ['CHAQUETA', 'CHAQUETAS', 'JACKET', 'CAMPERA'],
-        'delantal': ['DELANTAL', 'MANDIL', 'APRON', 'PECHERA', 'JUMPER'],
-        'ambo': ['AMBO', 'AMBO VESTIR HOMBRE – DAMA', 'SCRUBS', 'UNIFORME'],
-        'casaca': ['CASACA', 'CASACAS', 'CHEF'],
-        'zapato': ['ZAPATO', 'ZAPATO DAMA', 'ZUECO', 'ZUECOS', 'CALZADO', 'SHOE'],
-        'cardigan': ['CARDIGAN', 'CARDIGAN HOMBRE – DAMA', 'CHALECO', 'CHALECO DAMA- HOMBRE', 'VEST'],
-        'remera': ['REMERA', 'REMERAS', 'POLO', 'T-SHIRT', 'PLAYERA']
-    }
-    
-    # Mapeo de categorías NO COMERCIALIZADAS (productos que NO vende GOODY)
-    non_commercialized_mappings = {
-        'pantalón': ['PANTALON', 'JEAN', 'PANTS', 'TROUSERS'],
-        'short': ['SHORT', 'BERMUDA', 'SHORTS'],
-        'falda': ['FALDA', 'POLLERA', 'SKIRT'],
-        'vestido': ['VESTIDO', 'DRESS'],
-    }
-    
-    # Verificar si la categoría detectada corresponde a productos comercializados
-    category_found = False
-    relevant_keywords = []
-    is_non_commercialized = False
-    
-    # PASO 1: Verificar si es una categoría COMERCIALIZADA
-    for goody_category, keywords in goody_category_mappings.items():
-        # Buscar si alguna palabra clave de la categoría está en el query
-        if any(keyword.lower() in query_lower for keyword in [goody_category] + keywords):
-            category_found = True
-            relevant_keywords = keywords
-            
-            break
-    
-    # PASO 2: Si no es comercializada, verificar si es NO COMERCIALIZADA
-    if not category_found:
-        for non_comm_category, keywords in non_commercialized_mappings.items():
-            # Buscar si alguna palabra clave de categoría no comercializada está en el query
-            if any(keyword.lower() in query_lower for keyword in [non_comm_category] + keywords):
-                is_non_commercialized = True
-                
-                
-                
-                return False, []
-                break
-    
-    # Si no encontramos la categoría en ningún mapeo, es categoría desconocida
-    if not category_found and not is_non_commercialized:
-        
-        
-        return False, []
-    
-    # Buscar productos disponibles en el catálogo para esta categoría válida
-    for basename in classifications:
-        # Verificar por nombre del archivo
-        if any(keyword in basename.upper() for keyword in relevant_keywords):
-            available_products.append(basename)
-            continue
-            
-        # Verificar por categoría clasificada
-        catalog_category = classifications[basename]['category'].upper()
-        if any(keyword in catalog_category for keyword in relevant_keywords):
-            available_products.append(basename)
-    
-    has_products = len(available_products) > 0
-    
-    return has_products, available_products
-
-def _apply_general_search(similarities, classifications, query_type, query_confidence, top_k):
-    """Búsqueda general con verificación de categorías disponibles"""
-    
-    # VERIFICAR SI ES UNA CATEGORÍA NO COMERCIALIZADA POR GOODY
-    if query_type and query_confidence > 0.2:
-        has_products, available_products = _check_category_availability(query_type, classifications)
-        
-        if not has_products:
-            
-            
-            return []
-    
-    
-    
-    # Aplicar boost categórico ligero si hay buena confianza
-    if query_type and query_confidence > 0.4:
-        boosted_similarities = []
-        for filename, visual_sim in similarities:
-            basename = os.path.basename(filename)
-            final_score = visual_sim
-            
-            if basename in classifications:
-                catalog_category = classifications[basename]['category'].lower()
-                if query_type.lower() in catalog_category or catalog_category in query_type.lower():
-                    boost_factor = 1.1  # 10% boost ligero
-                    final_score = min(0.99, visual_sim * boost_factor)
-                    
-            
-            boosted_similarities.append((filename, final_score))
-        
-        similarities = boosted_similarities
-    
-    # Aplicar umbral general: solo productos con similitud > 65%
-    similarities.sort(key=lambda x: x[1], reverse=True)
-    results = [(f, s) for f, s in similarities if s > 0.65][:top_k]
-    
-    return results
-
-def _get_display_category(basename, classifications):
-    """Obtener categoría para mostrar en resultados"""
-    if basename in classifications:
-        return classifications[basename]['category'][:8].upper()
-    else:
-        # Inferir por nombre
-        if "CAMISA" in basename.upper(): return "CAMISA"
-        elif "CHAQUETA" in basename.upper(): return "CHAQUETA"
-        elif "DELANTAL" in basename.upper(): return "DELANTAL"
-        elif "AMBO" in basename.upper(): return "AMBO"
-        elif "CASACA" in basename.upper(): return "CASACA"
-        elif "GORRO" in basename.upper() or "GORRA" in basename.upper(): return "GORRO"
-        elif "CARDIGAN" in basename.upper() or "CHALECO" in basename.upper(): return "CARDIGAN"
-        elif "BUZO" in basename.upper(): return "BUZO"
-        elif "REMERA" in basename.upper(): return "REMERA"
-        elif "ZAPATO" in basename.upper() or "ZUECO" in basename.upper(): return "CALZADO"
-        else: return "OTROS"
 
 # ==================== RUTAS DE AUTENTICACIÓN ====================
 
@@ -882,33 +595,30 @@ def upload_file():
         print(f"📏 Tamaño: {file_size:,} bytes")
         print(f"🖼️ Dimensiones: {image.size}")
 
-        # Clasificar automáticamente
+        # Clasificar automáticamente usando el nuevo flujo
         query_type, query_confidence = classify_query_image(image)
         
-        print(f"🎯 Tipo detectado: {query_type}")
+        print(f"🎯 Resultado clasificación: {query_type}")
         print(f"📊 Confianza: {query_confidence:.3f} ({query_confidence*100:.1f}%)")
         
-        # Verificar si es categoría comercializada o no
-        if query_type:
-            if is_commercial_category(query_type):
-                print(f"✅ Categoría COMERCIALIZADA por GOODY")
-            else:
-                print(f"❓ Categoría no identificada como comercializada")
-        
-        # Si no se detectó categoría comercializada, obtener descripción general
+        # Determinar si es comercial o no comercial
+        is_commercial = query_type and not query_type.startswith("NO_COMERCIAL:")
         general_description = None
-        general_confidence = 0.0
-        if not query_type or not is_commercial_category(query_type):
-            general_description, general_confidence = get_general_image_description(image)
-            print(f"🔍 Descripción general: {general_description}")
-            print(f"📊 Confianza descripción: {general_confidence:.3f} ({general_confidence*100:.1f}%)")
+        
+        if not is_commercial and query_type and query_type.startswith("NO_COMERCIAL:"):
+            # Extraer la descripción de lo que CLIP detectó
+            general_description = query_type.replace("NO_COMERCIAL:", "").strip()
+            print(f"� Contenido NO COMERCIAL: {general_description}")
+        elif is_commercial:
+            print(f"✅ Categoría COMERCIAL: {query_type}")
+        else:
+            print(f"❓ No se detectó contenido claro")
 
-        # Buscar imágenes similares usando la función corregida del core
-        from core.search_engine import find_similar_images as core_find_similar_images
-        similar_images = core_find_similar_images(
+        # Buscar imágenes similares usando función centralizada
+        similar_images = find_similar_images(
             query_embedding, 
             top_k=3, 
-            query_type=query_type, 
+            query_type=query_type if is_commercial else None,  # Solo buscar si es comercial
             query_confidence=query_confidence
         )
         
@@ -944,35 +654,30 @@ def upload_file():
         # Determinar mensaje de estado
         status_message = None
         if not similar_images:
-            if query_type and is_commercial_category(query_type):
+            if general_description:
+                # Contenido no comercial - CLIP detectó algo pero no se comercializa
+                status_message = f"🚫 CLIP detectó: '{general_description.title()}' - GOODY no comercializa este tipo de productos. Nuestras categorías disponibles son: DELANTAL, AMBO, CAMISA, CASACA, ZUECO, GORRO, CARDIGAN, BUZO, ZAPATO DAMA, CHALECO, CHAQUETA, REMERA."
+            elif is_commercial and query_type:
                 # Es categoría comercializada pero sin productos similares
                 detected_item = query_type.split(',')[0].strip().title()
                 status_message = f"⚠️ Se detectó: '{detected_item}' (categoría comercializada) pero no se encontraron productos similares en nuestro catálogo actual."
-            elif general_description and general_confidence > 0.15:
-                # Usar descripción general de CLIP para explicar qué detectó
-                detected_item = general_description.split(',')[0].strip().title()
-                status_message = f"🚫 Se detectó: '{detected_item}' - GOODY no comercializa este tipo de productos. Nuestras categorías disponibles son: DELANTAL, AMBO, CAMISA, CASACA, ZUECO, GORRO, CARDIGAN, BUZO, ZAPATO DAMA, CHALECO, CHAQUETA, REMERA."
             else:
                 # Confianza muy baja en todo
-                status_message = f"❌ No se pudo identificar claramente el contenido de la imagen (confianza: {max(query_confidence, general_confidence)*100:.1f}%). Asegúrate de subir una imagen clara de ropa profesional."
+                status_message = f"❌ No se pudo identificar claramente el contenido de la imagen (confianza: {query_confidence*100:.1f}%). Asegúrate de subir una imagen clara de ropa profesional."
         
         print(f"💬 Mensaje de estado: {status_message}")
         print(f"🏁 === FIN ANÁLISIS ===\n")
         
         # Preparar el tipo detectado para mostrar
         display_type = "No detectado"
-        if query_type and is_commercial_category(query_type):
+        if is_commercial and query_type:
             # Categoría comercializada detectada
             detected_item = query_type.split(',')[0].strip().title()
             display_type = f"✅ {detected_item}"
-        elif general_description and general_confidence > 0.15:
-            # Usar descripción general de CLIP
+        elif general_description:
+            # Usar descripción de lo que CLIP realmente detectó
             detected_item = general_description.split(',')[0].strip().title()
             display_type = f"🚫 {detected_item} (No comercializado)"
-        elif query_type:
-            # Categoría detectada pero no clasificada
-            detected_item = query_type.split(',')[0].strip().title()
-            display_type = f"❓ {detected_item}"
         
         response_data = {
             'uploaded_file': file.filename,  # Solo nombre, no se guarda

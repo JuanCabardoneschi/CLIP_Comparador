@@ -65,11 +65,11 @@ CATEGORIAS_COMERCIALIZADAS_KEYWORDS = [
 
 # FUNCIÓN PARA OBTENER CATEGORÍAS
 def get_commercial_categories():
-    """Obtener lista de categorías comercializadas"""
-    return CATEGORIAS_COMERCIALIZADAS_KEYWORDS.copy()
+    """Obtener SOLO las 12 categorías comercializadas por GOODY para CLIP"""
+    return CLIP_CATEGORIES.copy()  # Todas son comerciales ahora
 
 def get_clip_categories():
-    """Obtener categorías para clasificación CLIP"""
+    """Obtener categorías para clasificación CLIP (alias para compatibilidad)"""
     return CLIP_CATEGORIES.copy()
 
 def is_commercial_category(query_text):
