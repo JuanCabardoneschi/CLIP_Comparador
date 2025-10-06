@@ -903,8 +903,9 @@ def upload_file():
             print(f"🔍 Descripción general: {general_description}")
             print(f"📊 Confianza descripción: {general_confidence:.3f} ({general_confidence*100:.1f}%)")
 
-        # Buscar imágenes similares
-        similar_images = find_similar_images(
+        # Buscar imágenes similares usando la función corregida del core
+        from core.search_engine import find_similar_images as core_find_similar_images
+        similar_images = core_find_similar_images(
             query_embedding, 
             top_k=3, 
             query_type=query_type, 
