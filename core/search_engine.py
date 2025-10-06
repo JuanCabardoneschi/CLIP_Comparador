@@ -35,7 +35,7 @@ def find_similar_images(query_embedding, top_k=3, query_type=None, query_confide
     from config.categories import is_commercial_category, is_non_commercial_category
     
     # Si no se detectó ninguna categoría o confianza muy baja, usar descripción general
-    if not query_type or query_confidence < 0.19:  # Bajar umbral a 19% (para capturar 18%)
+    if not query_type or query_confidence < 0.18:  # Bajar umbral a 18% para capturar más categorías válidas
         print(f"❓ No se detectó categoría clara (confianza: {query_confidence:.3f})")
         return "CATEGORIA_NO_DETECTADA"
     
@@ -140,7 +140,7 @@ def find_similar_images(query_embedding, top_k=3, query_type=None, query_confide
         same_category_products.sort(key=lambda x: x[1], reverse=True)
         
         # Aplicar umbral mínimo más permisivo para la misma categoría
-        MIN_CATEGORY_SIMILARITY = 0.30  # Umbral más bajo para misma categoría
+        MIN_CATEGORY_SIMILARITY = 0.20  # Umbral más bajo para misma categoría (reducido de 0.30)
         filtered_similarities = [(f, s) for f, s in same_category_products if s >= MIN_CATEGORY_SIMILARITY]
         
         print(f"🔍 Productos de la categoría con similitud >= {MIN_CATEGORY_SIMILARITY}: {len(filtered_similarities)}")

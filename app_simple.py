@@ -42,9 +42,12 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.17"
+VERSION = "3.9.18"
 BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.18": ("FIX UMBRALES BÚSQUEDA: Reducido umbral de categoría de 30% a 20% y "
+               "umbral general de 19% a 18%. Permite encontrar productos con confianza "
+               "más baja pero válida como casacas (18.8%). Mejora recall del sistema"),
     "3.9.17": ("FIX LOGIN RATE LIMIT: Aumentado límite de login de 5/min a 20/min. "
                "Elimina el bloqueo 'Too Many Requests' en la página de login"),
     "3.9.16": ("CÓDIGO SIMPLIFICADO: Eliminada lógica compleja innecesaria de recarga "
