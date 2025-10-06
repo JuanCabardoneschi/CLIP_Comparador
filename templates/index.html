@@ -681,15 +681,15 @@
             const similarImagesContainer = document.getElementById('similar-images');
             similarImagesContainer.innerHTML = '';
 
-            // Verificar si hay un mensaje amigable para categorías no comercializadas
-            if (result.friendly_message && result.category_not_available) {
+            // Verificar si hay un mensaje de status para categorías no comercializadas
+            if (result.status_message) {
                 similarImagesContainer.innerHTML = `
                     <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 15px; border: 2px solid #d1d5db;">
                         <div style="font-size: 2.5em; margin-bottom: 20px;">🛍️</div>
-                        <h3 style="color: #374151; margin-bottom: 15px; font-weight: 600;">¡Gracias por tu interés!</h3>
-                        <p style="color: #6b7280; line-height: 1.6; max-width: 600px; margin: 0 auto;">${result.friendly_message}</p>
+                        <h3 style="color: #374151; margin-bottom: 15px; font-weight: 600;">Información del Producto</h3>
+                        <p style="color: #6b7280; line-height: 1.6; max-width: 600px; margin: 0 auto;">${result.status_message}</p>
                         <div style="margin-top: 25px; padding: 15px; background: white; border-radius: 10px; border-left: 4px solid #4f46e5;">
-                            <p style="color: #4f46e5; font-weight: 500; margin: 0;">💡 Tip: Puedes subir una imagen de cualquiera de nuestros productos para encontrar opciones similares</p>
+                            <p style="color: #4f46e5; font-weight: 500; margin: 0;">💡 Tip: Sube una imagen de ropa profesional para encontrar productos similares en nuestro catálogo</p>
                         </div>
                     </div>
                 `;
