@@ -433,6 +433,8 @@ def classify_query_image(image):
     """
     global model, preprocess, device
     try:
+        print(f"🚀 INICIANDO classify_query_image() - DEBUG RAILWAY")
+        
         # Determinar si es un path o un objeto Image
         if isinstance(image, str):
             image = Image.open(image)
@@ -441,13 +443,16 @@ def classify_query_image(image):
             image = image
             
         image = image.convert('RGB')
+        print(f"📷 Imagen preparada: {image.size}")
         
         # PASO 1: Obtener descripción LIBRE de CLIP (sin limitaciones)
+        print(f"🔍 PASO 1: Llamando get_general_image_description()")
         free_description, free_confidence = get_general_image_description(image)
         print(f"🔍 CLIP descripción libre: {free_description}")
         print(f"📊 Confianza descripción libre: {free_confidence:.3f} ({free_confidence*100:.1f}%)")
         
         # PASO 2: NOSOTROS analizamos si coincide con productos comerciales
+        print(f"🔍 PASO 2: Verificando si es categoría comercial: '{free_description}'")
         if is_commercial_category(free_description):
             print(f"✅ Descripción libre coincide con categoría comercial")
             
@@ -491,10 +496,13 @@ def classify_query_image(image):
         
         # PASO 4: No es categoría comercial - usar descripción libre de CLIP
         print(f"🚫 Descripción libre NO coincide con categorías comerciales")
+        print(f"🔄 RETORNANDO: NO_COMERCIAL:{free_description}")
         return f"NO_COMERCIAL:{free_description}", free_confidence
             
     except Exception as e:
-        print(f"❌ Error en clasificación: {e}")
+        print(f"❌ ERROR CRÍTICO en classify_query_image(): {e}")
+        import traceback
+        print(f"🔥 TRACEBACK: {traceback.format_exc()}")
         return None, 0.0
 
 # ==================== RUTAS DE AUTENTICACIÓN ====================
