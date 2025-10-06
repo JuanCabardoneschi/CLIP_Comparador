@@ -4,7 +4,7 @@
     "buildCommand": "pip install -r requirements-railway.txt && chmod +x railway-setup.sh && ./railway-setup.sh"
   },
   "deploy": {
-    "startCommand": "gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --max-requests 1000 --preload app_railway:app",
+    "startCommand": "python app_railway.py",
     "healthcheckPath": "/status",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ALWAYS"
