@@ -16,8 +16,9 @@ gunicorn==21.2.0
 waitress==2.1.2
 
 # PyTorch - versión CPU optimizada para Railway
-torch==2.0.1+cpu --index-url https://download.pytorch.org/whl/cpu
-torchvision==0.15.2+cpu --index-url https://download.pytorch.org/whl/cpu
+--index-url https://download.pytorch.org/whl/cpu
+torch==2.0.1+cpu
+torchvision==0.15.2+cpu
 
 # CLIP y dependencias
 git+https://github.com/openai/CLIP.git
