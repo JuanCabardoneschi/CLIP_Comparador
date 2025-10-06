@@ -42,9 +42,11 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.7"
+VERSION = "3.9.8"
 BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.8": ("FORCE DEPLOY: Forzar redeploy Railway con últimas mejoras "
+              "en get_general_image_description() y classify_query_image()"),
     "3.9.7": ("FIX CLIP HALLUCINATIONS: Reordenados prompts priorizando "
               "categorías generales (texto, personas, etc.) antes que comerciales "
               "para evitar detección incorrecta de ropa en imágenes no comerciales"),
