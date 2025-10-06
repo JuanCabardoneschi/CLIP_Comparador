@@ -42,9 +42,11 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.9"
+VERSION = "3.9.10"
 BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.10": ("CRITICAL RAILWAY FIX: Eliminado __pycache__ + rebuild forzado "
+               "Railway DEBE usar classify_query_image() actualizada v3.9.10"),
     "3.9.9": ("FORCE COMPLETE DEPLOY: Rebuild completo Railway - asegurar "
               "que use código actualizado con mejoras de detección de hallucinations"),
     "3.9.8": ("FORCE DEPLOY: Forzar redeploy Railway con últimas mejoras "
@@ -435,12 +437,13 @@ def classify_query_image(image):
     2. Analizamos si esa descripción coincide con nuestros productos comerciales
     3. Si coincide -> clasificación específica, si no -> informar descripción libre
     
-    ⚠️ RAILWAY DEPLOY v3.9.9 - FORCE REBUILD COMPLETO ⚠️
+    ⚠️ RAILWAY CRITICAL FIX v3.9.10 - CACHE CLEARED ⚠️
     """
     global model, preprocess, device
     try:
-        print(f"🚀🚀🚀 INICIANDO classify_query_image() v3.9.9 - RAILWAY FORCE DEPLOY 🚀🚀🚀")
-        print(f"🔥 ESTA ES LA VERSIÓN ACTUALIZADA CON FIX HALLUCINATIONS 🔥")
+        print(f"��� RAILWAY v3.9.10 - CACHE CLEARED - NEW DEPLOYMENT ���")
+        print(f"🆘 SI VES ESTO = RAILWAY ESTÁ USANDO EL CÓDIGO ACTUALIZADO 🆘")
+        print(f"🔥 classify_query_image() v3.9.10 - ANTI-HALLUCINATIONS 🔥")
         
         # Determinar si es un path o un objeto Image
         if isinstance(image, str):
