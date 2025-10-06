@@ -42,9 +42,12 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.10"
+VERSION = "3.9.11"
 BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.11": ("ARQUITECTURA UNIFICADA: Eliminado app_railway.py redundante. "
+               "Ahora app_simple.py maneja tanto desarrollo como producción Railway. "
+               "Sin duplicación de código - principio DRY aplicado correctamente"),
     "3.9.10": ("CRITICAL RAILWAY FIX: Eliminado __pycache__ + rebuild forzado "
                "Railway DEBE usar classify_query_image() actualizada v3.9.10"),
     "3.9.9": ("FORCE COMPLETE DEPLOY: Rebuild completo Railway - asegurar "
@@ -813,8 +816,43 @@ def initialize_system():
 
 if __name__ == '__main__':
     if initialize_system():
-        # Puerto dinámico para despliegue en cloud (Render, Heroku, etc.)
+        # Puerto dinámico para despliegue en cloud (Render, Heroku, Railway, etc.)
         port = int(os.environ.get('PORT', 5000))
-        app.run(host='0.0.0.0', port=port, debug=True)
+        host = '0.0.0.0'
+        
+        # Detectar si estamos en Railway (ambiente de producción)
+        is_production = os.environ.get('RAILWAY_ENVIRONMENT_NAME') is not None
+        
+        if is_production:
+            # Usar Waitress para producción (Railway)
+            try:
+                from waitress import serve
+                print(f"🏭 Modo PRODUCCIÓN activado")
+                print(f"🚀 CLIP Comparador configurado para Railway")
+                print(f"🌐 Puerto: {port}")
+                print(f"🔧 Modo: production")
+                print(f"🌐 Iniciando servidor WSGI (Waitress) en {host}:{port}")
+                print("✅ Servidor de PRODUCCIÓN - Sin warnings de development")
+                
+                # Iniciar servidor Waitress para Railway
+                serve(
+                    app,
+                    host=host,
+                    port=port,
+                    threads=8,                # Número de hilos
+                    connection_limit=1000,    # Límite de conexiones
+                    cleanup_interval=30,      # Intervalo de limpieza
+                    channel_timeout=120,      # Timeout de canal
+                    url_scheme='http'
+                )
+                
+            except ImportError:
+                print("⚠️  Waitress no disponible, usando Flask development server")
+                app.run(host=host, port=port, debug=False, threaded=True)
+        else:
+            # Usar Flask development server para desarrollo local
+            print(f"🛠️  Modo DESARROLLO activado")
+            print(f"🌐 Ejecutando en: http://127.0.0.1:{port}")
+            app.run(host=host, port=port, debug=True)
     else:
         sys.exit(1)

@@ -4,7 +4,7 @@
     "buildCommand": "pip install -r requirements-railway.txt && chmod +x railway-setup.sh && ./railway-setup.sh"
   },
   "deploy": {
-    "startCommand": "python app_railway.py",
+    "startCommand": "python app_simple.py",
     "healthcheckPath": "/status",
     "healthcheckTimeout": 300,
     "restartPolicyType": "ALWAYS"
