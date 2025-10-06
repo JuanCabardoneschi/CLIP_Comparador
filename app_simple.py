@@ -911,6 +911,14 @@ def upload_file():
             query_confidence=query_confidence
         )
         
+        # Verificar si es una categoría explícitamente no comercializada
+        if similar_images == "CATEGORIA_NO_COMERCIALIZADA":
+            print(f"🚫 Categoría NO comercializada detectada")
+            similar_images = []  # Convertir a lista vacía para manejo uniforme
+        elif similar_images == "CATEGORIA_NO_DETECTADA":
+            print(f"❓ No se detectó categoría clara")
+            similar_images = []  # Convertir a lista vacía para manejo uniforme
+        
         print(f"🔎 Imágenes similares encontradas: {len(similar_images)}")
         for i, (filename_path, similarity) in enumerate(similar_images, 1):
             basename = os.path.basename(filename_path.replace('\\', '/'))

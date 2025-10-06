@@ -81,3 +81,9 @@ def is_commercial_category(query_text):
     
     query_lower = query_text.lower()
     return any(categoria in query_lower for categoria in CATEGORIAS_COMERCIALIZADAS_KEYWORDS)
+
+def is_non_commercial_category(query_text):
+    """
+    Verificar si un texto corresponde a una categoría NO comercializada
+    """
+    return not is_commercial_category(query_text)
