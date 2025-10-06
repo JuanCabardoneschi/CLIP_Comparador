@@ -21,12 +21,7 @@ def find_similar_images(query_embedding, top_k=3, query_type=None, query_confide
     print(f"Categoría detectada: '{query_type}' con confianza: {query_confidence}")
     
     # Importar configuración centralizada de categorías
-    from config.categories import is_commercial_category, is_non_commercial_category
-    
-    # Verificar si es una categoría explícitamente no comercializada
-    if query_type and is_non_commercial_category(query_type):
-        print(f"❌ Categoría '{query_type}' explícitamente NO comercializada por GOODY")
-        return "CATEGORIA_NO_COMERCIALIZADA"
+    from config.categories import is_commercial_category
     
     # Verificar si la categoría detectada está en nuestro catálogo comercializado
     if query_type and not is_commercial_category(query_type):
