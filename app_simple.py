@@ -100,6 +100,9 @@ def create_app():
 # Crear app
 app = create_app()
 
+# Importar configuración centralizada de categorías
+from config.categories import get_clip_categories, is_commercial_category  # noqa: E401
+
 # Configuración de autenticación
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -301,46 +304,83 @@ def fix_image_orientation(image):
     return image
 
 
-def classify_query_image(image_input):
+def get_general_image_description(image):
+    """
+    Obtener descripción general de la imagen usando CLIP
+    Esta función describe CUALQUIER imagen, no solo ropa - EN ESPAÑOL
+    """
+    try:
+        # Tokenizar la imagen
+        image_tensor = preprocess(image).unsqueeze(0).to(device)
+        
+        # Categorías generales para descripción libre - EN ESPAÑOL
+        general_categories = [
+            "automóvil deportivo rojo, coche vehículo",
+            "persona con ropa profesional, uniforme de trabajo", 
+            "camisa blanca con cuello, blusa formal",
+            "pantalón negro largo, jean de vestir",
+            "delantal de cocina marrón, mandil profesional",
+            "teléfono móvil smartphone, dispositivo celular",
+            "computadora portátil, laptop tecnología",
+            "comida plato de cocina, alimento preparado",
+            "animal mascota perro gato, pet doméstico",
+            "planta árbol flor, naturaleza verde",
+            "mueble silla mesa, mobiliario del hogar",
+            "herramienta equipo de trabajo, hardware",
+            "paisaje vista exterior, escenario natural",
+            "edificio construcción estructura, arquitectura"
+        ]
+        
+        # Tokenizar categorías generales
+        text_tokens = clip.tokenize(general_categories).to(device)
+        
+        with torch.no_grad():
+            # Obtener embeddings
+            image_features = model.encode_image(image_tensor)
+            text_features = model.encode_text(text_tokens)
+            
+            # Normalizar
+            image_features /= image_features.norm(dim=-1, keepdim=True)
+            text_features /= text_features.norm(dim=-1, keepdim=True)
+            
+            # Calcular similitudes
+            similarities = (image_features @ text_features.T).squeeze(0)
+            
+            # Obtener la descripción más probable
+            best_match_idx = similarities.argmax().item()
+            confidence = float(similarities[best_match_idx].item())
+            
+            description = general_categories[best_match_idx]
+            
+            return description, confidence
+            
+    except Exception:
+        return None, 0.0
+
+
+def classify_query_image(image):
     """Clasificar imagen usando CLIP text embeddings
     - acepta path o objeto PIL Image"""
     global model, preprocess, device
     try:
         # Determinar si es un path o un objeto Image
-        if isinstance(image_input, str):
-            image = Image.open(image_input)
+        if isinstance(image, str):
+            image = Image.open(image)
             # Corregir orientación EXIF solo para archivos  # noqa: E501
             # (no para objetos ya procesados)
             image = fix_image_orientation(image)
         else:
-            image = image_input
+            image = image
             
         image = image.convert('RGB')
             
         image_tensor = preprocess(image).unsqueeze(0).to(device)
         
-        # Categorías UNIFICADAS - CLIP categories for classification  # noqa: E501
-        categories = [
-            # ===== CATEGORÍAS COMERCIALIZADAS POR GOODY =====
-            "buzo cerrado con capucha, sudadera gruesa de trabajo, hoodie with zipper",  # noqa: E501
-            "camisa con botones y cuello, blusa formal de trabajo, dress shirt with collar",  # noqa: E501
-            "gorro de chef, gorra profesional con visera, work cap with brim, boina calada",  # noqa: E501
-            "chaqueta cerrada profesional, jacket with zipper, campera de trabajo",  # noqa: E501
-            "delantal de trabajo con pechera, mandil profesional con tirantes, apron with straps green",  # noqa: E501
-            "ambo médico scrubs sanitario, uniforme hospitalario, medical uniform set",  # noqa: E501
-            "casaca de chef blanca, chaqueta de cocina profesional, chef jacket with buttons",  # noqa: E501
-            "zapato cerrado profesional, zueco de trabajo, calzado antideslizante, work shoes",  # noqa: E501
-            "cardigan abierto con botones, chaleco sin mangas, vest without sleeves",  # noqa: E501
-            "remera polo casual, camiseta deportiva sin botones, t-shirt casual cotton",  # noqa: E501
-            "buzo frizado de trabajo, sudadera cerrada profesional, thick work sweatshirt",  # noqa: E501
-            "conjunto deportivo casual, ropa de gimnasio, activewear clothing set",  # noqa: E501
-            # ===== CATEGORÍAS NO COMERCIALIZADAS (PARA DETECCIÓN Y RECHAZO) =====  # noqa: E501
-            "pantalón largo, jean de trabajo, pants trousers long legs black",
-            "short bermuda corto, pantalón corto de verano, summer shorts",
-            "falda de vestir, pollera profesional, skirt for women",
-            "vestido de trabajo, dress for women, ropa femenina formal",
-            "chaqueta de punto abierta, cardigan profesional, open front sweater"  # noqa: E501
-        ]
+        # Categorías UNIFICADAS desde config/categories.py
+        categories = get_clip_categories()
+        print(f"📋 Usando {len(categories)} categorías desde config/categories.py")
+        print(f"📝 Primera categoría: {categories[0][:50]}...")
+        print(f"📝 Última categoría: {categories[-1][:50]}...")
         
         # Tokenizar categorías
         text_tokens = clip.tokenize(categories).to(device)
@@ -363,8 +403,15 @@ def classify_query_image(image_input):
             
             category = categories[best_match_idx].split(',')[0].strip()
             
+            # Debug: mostrar top 3 similitudes
+            top_similarities = torch.topk(similarities, min(3, len(similarities)))
+            print(f"🔍 Top 3 similitudes:")
+            for i, (sim_idx, sim_val) in enumerate(zip(top_similarities.indices, top_similarities.values)):
+                cat_name = categories[sim_idx.item()].split(',')[0].strip()
+                print(f"   {i+1}. {cat_name}: {sim_val.item():.3f} ({sim_val.item()*100:.1f}%)")
+            
             # UMBRAL MÍNIMO DE CONFIANZA - Si es muy bajo, no hay match claro
-            MIN_CONFIDENCE_THRESHOLD = 0.20  # 20% mínimo para considerar válida la detección
+            MIN_CONFIDENCE_THRESHOLD = 0.15  # Bajamos a 15% para detectar más objetos
             
             if confidence < MIN_CONFIDENCE_THRESHOLD:
                 return None, confidence
@@ -829,10 +876,33 @@ def upload_file():
         
         if query_embedding is None:
             return jsonify({'error': 'Error procesando imagen'}), 500
-        
+
+        print(f"\n🔍 === ANÁLISIS DE IMAGEN ===")
+        print(f"📁 Archivo subido: {file.filename}")
+        print(f"📏 Tamaño: {file_size:,} bytes")
+        print(f"🖼️ Dimensiones: {image.size}")
+
         # Clasificar automáticamente
         query_type, query_confidence = classify_query_image(image)
         
+        print(f"🎯 Tipo detectado: {query_type}")
+        print(f"📊 Confianza: {query_confidence:.3f} ({query_confidence*100:.1f}%)")
+        
+        # Verificar si es categoría comercializada o no
+        if query_type:
+            if is_commercial_category(query_type):
+                print(f"✅ Categoría COMERCIALIZADA por GOODY")
+            else:
+                print(f"❓ Categoría no identificada como comercializada")
+        
+        # Si no se detectó categoría comercializada, obtener descripción general
+        general_description = None
+        general_confidence = 0.0
+        if not query_type or not is_commercial_category(query_type):
+            general_description, general_confidence = get_general_image_description(image)
+            print(f"🔍 Descripción general: {general_description}")
+            print(f"📊 Confianza descripción: {general_confidence:.3f} ({general_confidence*100:.1f}%)")
+
         # Buscar imágenes similares
         similar_images = find_similar_images(
             query_embedding, 
@@ -841,7 +911,13 @@ def upload_file():
             query_confidence=query_confidence
         )
         
+        print(f"🔎 Imágenes similares encontradas: {len(similar_images)}")
+        for i, (filename_path, similarity) in enumerate(similar_images, 1):
+            basename = os.path.basename(filename_path.replace('\\', '/'))
+            print(f"   {i}. {basename} - Similitud: {similarity:.3f} ({similarity*100:.1f}%)")
         
+        if not similar_images:
+            print(f"❌ No se encontraron imágenes similares en el catálogo")        
         
         # Preparar respuesta
         results = []
@@ -859,26 +935,40 @@ def upload_file():
         # Determinar mensaje de estado
         status_message = None
         if not similar_images:
-            if query_confidence < 0.20:  # Umbral muy bajo
-                status_message = f"La imagen no coincide suficientemente con ninguna categoría conocida (confianza: {query_confidence*100:.1f}%)"
+            if query_type and is_commercial_category(query_type):
+                # Es categoría comercializada pero sin productos similares
+                detected_item = query_type.split(',')[0].strip().title()
+                status_message = f"⚠️ Se detectó: '{detected_item}' (categoría comercializada) pero no se encontraron productos similares en nuestro catálogo actual."
+            elif general_description and general_confidence > 0.15:
+                # Usar descripción general de CLIP para explicar qué detectó
+                detected_item = general_description.split(',')[0].strip().title()
+                status_message = f"🚫 Se detectó: '{detected_item}' - GOODY no comercializa este tipo de productos. Nuestras categorías disponibles son: DELANTAL, AMBO, CAMISA, CASACA, ZUECO, GORRO, CARDIGAN, BUZO, ZAPATO DAMA, CHALECO, CHAQUETA, REMERA."
             else:
-                # Verificar si la categoría detectada tiene productos disponibles
-                try:
-                    with open('catalogo/product_classifications.json', 'r', encoding='utf-8') as f:
-                        classifications = json.load(f)
-                    has_products, _ = _check_category_availability(query_type, classifications)
-                    if not has_products:
-                        status_message = f"GOODY no comercializa productos de la categoría '{query_type}'. Las categorías disponibles son: BUZO, CAMISA, GORRO, CHAQUETA, DELANTAL, AMBO, CASACA, CALZADO, CARDIGAN, REMERA"
-                    else:
-                        # Verificar si fue rechazado por similitud insuficiente
-                        status_message = f"La imagen no muestra suficiente similitud visual con productos de la categoría '{query_type}'. Esto sugiere que podría ser un producto no comercializado por GOODY."
-                except:
-                    status_message = "No se encontraron productos similares en el catálogo"
+                # Confianza muy baja en todo
+                status_message = f"❌ No se pudo identificar claramente el contenido de la imagen (confianza: {max(query_confidence, general_confidence)*100:.1f}%). Asegúrate de subir una imagen clara de ropa profesional."
+        
+        print(f"💬 Mensaje de estado: {status_message}")
+        print(f"🏁 === FIN ANÁLISIS ===\n")
+        
+        # Preparar el tipo detectado para mostrar
+        display_type = "No detectado"
+        if query_type and is_commercial_category(query_type):
+            # Categoría comercializada detectada
+            detected_item = query_type.split(',')[0].strip().title()
+            display_type = f"✅ {detected_item}"
+        elif general_description and general_confidence > 0.15:
+            # Usar descripción general de CLIP
+            detected_item = general_description.split(',')[0].strip().title()
+            display_type = f"🚫 {detected_item} (No comercializado)"
+        elif query_type:
+            # Categoría detectada pero no clasificada
+            detected_item = query_type.split(',')[0].strip().title()
+            display_type = f"❓ {detected_item}"
         
         response_data = {
             'uploaded_file': file.filename,  # Solo nombre, no se guarda
             'uploaded_image_data': uploaded_image_data,  # Imagen en base64
-            'query_type': query_type,
+            'query_type': display_type,
             'query_confidence': round(query_confidence, 3),
             'similar_images': results,
             'status_message': status_message

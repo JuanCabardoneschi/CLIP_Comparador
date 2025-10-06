@@ -32,13 +32,7 @@ CLIP_CATEGORIES = [
     "zapato dama profesional, calzado femenino de trabajo, women work shoes",
     "chaleco dama y hombre, vest sin mangas profesional, sleeveless vest",
     "chaqueta profesional cerrada, jacket campera de trabajo, work jacket",
-    "remera casual polo, camiseta sin botones, t-shirt cotton casual",
-    # ===== CATEGORÍAS NO COMERCIALIZADAS (PARA DETECCIÓN Y RECHAZO) =====
-    "pantalón largo, jean de trabajo, pants trousers long legs black",
-    "short bermuda corto, pantalón corto de verano, summer shorts",
-    "falda de vestir, pollera profesional, skirt for women",
-    "vestido de trabajo, dress for women, ropa femenina formal",
-    "corbata formal, tie necktie professional, formal tie"
+    "remera casual polo, camiseta sin botones, t-shirt cotton casual"
 ]
 
 # PALABRAS CLAVE PARA FILTROS DE CATEGORÍAS COMERCIALIZADAS
@@ -69,22 +63,10 @@ CATEGORIAS_COMERCIALIZADAS_KEYWORDS = [
     "remera", "polo", "camiseta", "t-shirt"
 ]
 
-# CATEGORÍAS NO COMERCIALIZADAS - GENERAN MENSAJE AMIGABLE
-CATEGORIAS_NO_COMERCIALIZADAS = [
-    "vestido", "dress", "falda", "skirt", 
-    "pantalón", "pants", "jeans", "trousers",
-    "corbata", "tie", "cinturón", "belt",
-    "medias", "socks", "ropa interior", "underwear",
-    "short", "bermuda", "shorts"
-]
-
+# FUNCIÓN PARA OBTENER CATEGORÍAS
 def get_commercial_categories():
     """Obtener lista de categorías comercializadas"""
     return CATEGORIAS_COMERCIALIZADAS_KEYWORDS.copy()
-
-def get_non_commercial_categories():
-    """Obtener lista de categorías no comercializadas"""
-    return CATEGORIAS_NO_COMERCIALIZADAS.copy()
 
 def get_clip_categories():
     """Obtener categorías para clasificación CLIP"""
@@ -99,13 +81,3 @@ def is_commercial_category(query_text):
     
     query_lower = query_text.lower()
     return any(categoria in query_lower for categoria in CATEGORIAS_COMERCIALIZADAS_KEYWORDS)
-
-def is_non_commercial_category(query_text):
-    """
-    Verificar si un texto corresponde a una categoría NO comercializada
-    """
-    if not query_text:
-        return False
-    
-    query_lower = query_text.lower()
-    return any(categoria in query_lower for categoria in CATEGORIAS_NO_COMERCIALIZADAS)
