@@ -1,7 +1,0 @@
-FORCE RAILWAY REBUILD - v3.9.9
-Timestamp: 2025-10-06 18:45:00
-Reason: Railway not using updated classify_query_image() function
-Expected: Debug logs with 🚀🚀🚀 markers and NO_COMERCIAL: prefix
-Actual: Old function returning None
-
-This file forces Railway to rebuild completely.

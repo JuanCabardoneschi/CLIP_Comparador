@@ -42,9 +42,12 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.11"
+VERSION = "3.9.12"
 BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.12": ("LIMPIEZA CÓDIGO: Eliminados archivos redundantes (app.py, "
+               "app_railway_production.py, production_server.py, scripts de inicio, "
+               "diagnostico_gorras.py, gunicorn.conf.py). Proyecto más limpio y mantenible"),
     "3.9.11": ("ARQUITECTURA UNIFICADA: Eliminado app_railway.py redundante. "
                "Ahora app_simple.py maneja tanto desarrollo como producción Railway. "
                "Sin duplicación de código - principio DRY aplicado correctamente"),
