@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Administración de Metadata - CLIP Comparador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .metadata-table {
+            font-size: 0.9rem;
+        }
+        .image-thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .status-badge {
+            font-size: 0.75rem;
+        }
+        .action-buttons .btn {
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container-fluid">
+        <!-- Header -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+            <div class="container">
+                <a class="navbar-brand" href="{{ url_for('admin_panel') }}">
+                    <i class="bi bi-arrow-left"></i> Panel Admin
+                </a>
+                <span class="navbar-text">
+                    <i class="bi bi-database"></i> Administración de Metadata
+                </span>
+                <div class="navbar-nav ms-auto">
+                    <span class="navbar-text me-3">
+                        <i class="bi bi-person-circle"></i> {{ user }}
+                    </span>
+                    <a class="btn btn-outline-light btn-sm" href="{{ url_for('logout') }}">
+                        <i class="bi bi-box-arrow-right"></i> Salir
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid">
+            <!-- Título y Estadísticas -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2><i class="bi bi-tags"></i> Gestión de Metadata de Productos</h2>
+                            <p class="text-muted">Administra la información detallada de cada producto del catálogo</p>
+                        </div>
+                        <div class="text-end">
+                            <div class="badge bg-primary fs-6 me-2">
+                                Total: {{ images_data|length }} imágenes
+                            </div>
+                            <div class="badge bg-success fs-6">
+                                Con metadata: {{ images_data|selectattr('metadata.categoria')|list|length }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Imágenes y Metadata -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-table"></i> Catálogo de Productos
+                            </h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover metadata-table mb-0">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Imagen</th>
+                                            <th>Nombre</th>
+                                            <th>Categoría</th>
+                                            <th>Tipo</th>
+                                            <th>Color</th>
+                                            <th>Material</th>
+                                            <th>Talles</th>
+                                            <th>Precio</th>
+                                            <th>Stock</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for image_data in images_data %}
+                                        <tr>
+                                            <td>
+                                                <img src="{{ url_for('catalog_file', filename=image_data.filename) }}" 
+                                                     alt="{{ image_data.filename }}" 
+                                                     class="image-thumbnail"
+                                                     data-bs-toggle="tooltip" 
+                                                     title="{{ image_data.filename }}">
+                                            </td>
+                                            <td>
+                                                <strong>{{ image_data.metadata.nombre or image_data.filename[:20] + '...' if image_data.filename|length > 20 else image_data.filename }}</strong>
+                                                <br>
+                                                <small class="text-muted">{{ image_data.filename }}</small>
+                                            </td>
+                                            <td>
+                                                {% if image_data.metadata.categoria %}
+                                                    <span class="badge bg-info">{{ image_data.metadata.categoria }}</span>
+                                                {% else %}
+                                                    <span class="text-muted">Sin categoría</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ image_data.metadata.tipo_prenda or '-' }}</td>
+                                            <td>
+                                                {% if image_data.metadata.color %}
+                                                    <span class="badge bg-secondary">{{ image_data.metadata.color }}</span>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ image_data.metadata.material or '-' }}</td>
+                                            <td>
+                                                {% if image_data.metadata.talle %}
+                                                    {% for talle in image_data.metadata.talle %}
+                                                        <span class="badge bg-light text-dark">{{ talle }}</span>
+                                                    {% endfor %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if image_data.metadata.precio > 0 %}
+                                                    <strong>${{ "%.2f"|format(image_data.metadata.precio) }}</strong>
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if image_data.metadata.stock >= 0 %}
+                                                    {% if image_data.metadata.stock > 0 %}
+                                                        <span class="badge bg-success">{{ image_data.metadata.stock }}</span>
+                                                    {% else %}
+                                                        <span class="badge bg-danger">Agotado</span>
+                                                    {% endif %}
+                                                {% else %}
+                                                    -
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if image_data.metadata.categoria and image_data.metadata.tipo_prenda %}
+                                                    <span class="badge bg-success status-badge">
+                                                        <i class="bi bi-check-circle"></i> Completo
+                                                    </span>
+                                                {% elif image_data.metadata.categoria or image_data.metadata.tipo_prenda %}
+                                                    <span class="badge bg-warning status-badge">
+                                                        <i class="bi bi-exclamation-triangle"></i> Parcial
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge bg-danger status-badge">
+                                                        <i class="bi bi-x-circle"></i> Vacío
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="{{ url_for('edit_metadata', filename=image_data.filename) }}" 
+                                                       class="btn btn-sm btn-primary" 
+                                                       data-bs-toggle="tooltip" 
+                                                       title="Editar metadata">
+                                                        <i class="bi bi-pencil"></i>
+                                                    </a>
+                                                    {% if image_data.metadata.categoria or image_data.metadata.tipo_prenda %}
+                                                    <form method="POST" 
+                                                          action="{{ url_for('delete_metadata', filename=image_data.filename) }}" 
+                                                          style="display: inline;"
+                                                          onsubmit="return confirm('¿Estás seguro de eliminar la metadata de {{ image_data.filename }}?');">
+                                                        <button type="submit" 
+                                                                class="btn btn-sm btn-danger"
+                                                                data-bs-toggle="tooltip" 
+                                                                title="Eliminar metadata">
+                                                            <i class="bi bi-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                    {% endif %}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leyenda -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h6><i class="bi bi-info-circle"></i> Leyenda de Estados</h6>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <span class="badge bg-success me-2">Completo</span>
+                                    Tiene categoría y tipo de prenda
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="badge bg-warning me-2">Parcial</span>
+                                    Falta información básica
+                                </div>
+                                <div class="col-md-4">
+                                    <span class="badge bg-danger me-2">Vacío</span>
+                                    Sin metadata configurada
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Inicializar tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+    </script>
+</body>
+</html>

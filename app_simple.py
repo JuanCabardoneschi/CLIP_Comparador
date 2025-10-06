@@ -42,9 +42,25 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.12"
+VERSION = "3.9.17"
 BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.17": ("FIX LOGIN RATE LIMIT: Aumentado límite de login de 5/min a 20/min. "
+               "Elimina el bloqueo 'Too Many Requests' en la página de login"),
+    "3.9.16": ("CÓDIGO SIMPLIFICADO: Eliminada lógica compleja innecesaria de recarga "
+               "automática, contador de consultas y limpieza agresiva. Mantenidos solo "
+               "los límites de rate limiting corregidos que solucionan el problema real. "
+               "Código más limpio y mantenible"),
+    "3.9.15": ("FIX RATE LIMITING: Aumentados límites de consultas de 10/min a 50/min "
+               "globalmente y de 20/min a 100/min en upload. Soluciona el bloqueo "
+               "después de varios usos consecutivos"),
+    "3.9.14": ("FIX MEMORIA PERSISTENTE: Implementado sistema de recarga automática "
+               "del modelo cada 15 consultas, limpieza agresiva de memoria después "
+               "de cada consulta, y reintentos automáticos en caso de error. "
+               "Soluciona el problema de degradación después de varios usos"),
+    "3.9.13": ("NUEVA FUNCIONALIDAD: Página de detalle del producto - Al hacer clic "
+               "en imágenes similares se abre página completa con toda la metadata, "
+               "precios, stock, talles, etc. Mejora UX para clientes demo"),
     "3.9.12": ("LIMPIEZA CÓDIGO: Eliminados archivos redundantes (app.py, "
                "app_railway_production.py, production_server.py, scripts de inicio, "
                "diagnostico_gorras.py, gunicorn.conf.py). Proyecto más limpio y mantenible"),
@@ -130,7 +146,7 @@ login_manager.login_message = 'Por favor, inicia sesión para acceder.'
 # Configuración de rate limiting
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour", "10 per minute"]
+    default_limits=["1000 per day", "200 per hour", "50 per minute"]  # Límites más flexibles
 )
 limiter.init_app(app)
 
@@ -214,50 +230,34 @@ def get_image_embedding(image_input):
         if isinstance(image_input, str):
             image = Image.open(image_input)
             # Corregir orientación EXIF solo para archivos
-            # (no para objetos ya procesados)
             image = fix_image_orientation(image)
         else:
             image = image_input
             
         image = image.convert('RGB')
         
-        # Redimensionar imagen agresivamente para ahorrar memoria
-        max_size = 224  # Mínimo posible para ViT-B/32
+        # Redimensionar imagen para optimizar memoria
+        max_size = 224  # Tamaño óptimo para RN50
         image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
         
-        # Preprocesar (batch size 1 para memoria mínima)
+        # Preprocesar
         image_tensor = preprocess(image).unsqueeze(0).to(device)
         
-        # Liberar imagen original inmediatamente
-        del image
-        import gc
-        gc.collect()
-        
-        # Generar embedding con optimizaciones de memoria EXTREMAS
+        # Generar embedding
         with torch.no_grad():
-            # Asegurar compatibilidad de tipos
-            # siempre usar float32 para estabilidad
-            image_tensor = image_tensor.float()  # Forzar float32
-            
+            image_tensor = image_tensor.float()
             image_features = model.encode_image(image_tensor)
-            image_features = image_features / image_features.norm(
-                dim=-1, keepdim=True)
-            
-            # Liberar tensor inmediatamente
-            embedding = image_features.cpu().numpy().flatten().astype(
-                np.float32)
-            
-            # Limpiar todo inmediatamente
-            del image_tensor, image_features
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            gc.collect()
+            image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+            embedding = image_features.cpu().numpy().flatten().astype(np.float32)
         
         return embedding
         
-    except Exception:
-        # Limpiar memoria en caso de error
+    except Exception as e:
+        print(f"❌ Error generando embedding: {e}")
+        # Limpieza básica en caso de error
         import gc
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
         gc.collect()
         return None
 
@@ -525,10 +525,13 @@ def classify_query_image(image):
 # ==================== RUTAS DE AUTENTICACIÓN ====================
 
 @app.route('/login', methods=['GET', 'POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("20 per minute")  # Aumentado de 5 a 20 intentos por minuto
 def login():
     """Página de login"""
     if current_user.is_authenticated:
+        # Si el usuario es admin, redirigir al panel de administración
+        if current_user.username == 'admin':
+            return redirect(url_for('admin_panel'))
         return redirect(url_for('index'))
     
     if request.method == 'POST':
@@ -538,6 +541,11 @@ def login():
         if username in DEMO_USERS and DEMO_USERS[username] == password:
             user = User(username)
             login_user(user)
+            
+            # Redirigir según el rol del usuario
+            if username == 'admin':
+                return redirect(url_for('admin_panel'))
+            
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('index'))
         else:
@@ -563,14 +571,11 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 @login_required
-@limiter.limit("20 per minute")
+@limiter.limit("100 per minute")  # Aumentado de 20 a 100 consultas por minuto
 def upload_file():
     """Procesar imagen subida y encontrar similares - SIN GUARDAR EN DISCO"""
     try:
-        
-        
         if 'file' not in request.files:
-            
             return jsonify({'error': 'No se seleccionó archivo'}), 400
         
         file = request.files['file']
@@ -713,12 +718,13 @@ def upload_file():
             'status_message': status_message
         }
         
-        
-        
         return jsonify(response_data)
         
     except Exception as e:
-        
+        # Limpieza básica en caso de error
+        import gc
+        gc.collect()
+        print(f"❌ Error procesando consulta: {e}")
         return jsonify({'error': str(e)}), 500
 
 @app.route('/status')
@@ -758,6 +764,35 @@ def status():
 def catalog_file(filename):
     """Servir archivos del catálogo"""
     return send_from_directory(app.config['CATALOGO_FOLDER'], filename)
+
+@app.route('/producto/<filename>')
+@login_required
+def product_detail(filename):
+    """Mostrar detalles completos de un producto específico"""
+    try:
+        # Cargar metadata del producto
+        metadata_dict = load_metadata()
+        product_metadata = link_metadata_to_image(filename, metadata_dict)
+        
+        # Verificar si la imagen existe en el catálogo
+        catalog_images = get_catalog_images()
+        if filename not in catalog_images:
+            flash('Producto no encontrado en el catálogo', 'error')
+            return redirect(url_for('index'))
+        
+        # Obtener categorías comerciales para mostrar información adicional
+        commercial_categories = get_commercial_categories()
+        
+        return render_template('product_detail.html',
+                             user=current_user.username,
+                             filename=filename,
+                             metadata=product_metadata,
+                             commercial_categories=commercial_categories,
+                             has_metadata=filename in metadata_dict)
+        
+    except Exception as e:
+        flash(f'Error al cargar detalles del producto: {str(e)}', 'error')
+        return redirect(url_for('index'))
 
 @app.route('/admin/generate-embeddings', methods=['GET', 'POST'])
 def generate_embeddings_endpoint():
@@ -816,6 +851,223 @@ def initialize_system():
     load_catalog_embeddings()
     
     return True
+
+# ==================== FUNCIONES DE METADATA ====================
+
+def load_metadata():
+    """Cargar metadata desde archivo JSON"""
+    metadata_file = "metadata.json"
+    try:
+        with open(metadata_file, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        # Si no existe, crear estructura básica
+        return {}
+    except Exception as e:
+        print(f"Error cargando metadata: {e}")
+        return {}
+
+def save_metadata(data):
+    """Guardar metadata en archivo JSON"""
+    metadata_file = "metadata.json"
+    try:
+        with open(metadata_file, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        print(f"Error guardando metadata: {e}")
+        return False
+
+def get_catalog_images():
+    """Obtener lista de imágenes del catálogo"""
+    catalog_path = app.config['CATALOGO_FOLDER']
+    images = []
+    
+    if os.path.exists(catalog_path):
+        for filename in os.listdir(catalog_path):
+            if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp')):
+                images.append(filename)
+    
+    return sorted(images)
+
+def link_metadata_to_image(image_filename, metadata_dict):
+    """Vincular metadata a una imagen específica por nombre de archivo"""
+    if image_filename in metadata_dict:
+        return metadata_dict[image_filename]
+    else:
+        # Crear metadata por defecto para nuevas imágenes
+        return {
+            'nombre': image_filename,
+            'categoria': '',
+            'tipo_prenda': '',
+            'color': '',
+            'material': '',
+            'talle': [],
+            'precio': 0.0,
+            'stock': 0,
+            'fecha_ingreso': '',
+            'notas': ''
+        }
+
+def validate_metadata_fields(metadata):
+    """Validar campos obligatorios de metadata"""
+    required_fields = ['nombre', 'categoria', 'tipo_prenda']
+    errors = []
+    
+    for field in required_fields:
+        if not metadata.get(field, '').strip():
+            errors.append(f"El campo '{field}' es obligatorio")
+    
+    # Validar precio (debe ser número positivo)
+    try:
+        precio = float(metadata.get('precio', 0))
+        if precio < 0:
+            errors.append("El precio debe ser un número positivo")
+    except (ValueError, TypeError):
+        errors.append("El precio debe ser un número válido")
+    
+    # Validar stock (debe ser número entero positivo)
+    try:
+        stock = int(metadata.get('stock', 0))
+        if stock < 0:
+            errors.append("El stock debe ser un número entero positivo")
+    except (ValueError, TypeError):
+        errors.append("El stock debe ser un número entero válido")
+    
+    return errors
+
+# ==================== RUTAS DEL PANEL DE ADMINISTRACIÓN ====================
+
+@app.route('/admin_panel')
+@login_required
+def admin_panel():
+    """Panel principal de administración - Solo para admin"""
+    if current_user.username != 'admin':
+        flash('Acceso denegado. Solo administradores pueden acceder.')
+        return redirect(url_for('index'))
+    
+    # Obtener estadísticas del sistema
+    total_images = len(get_catalog_images())
+    metadata = load_metadata()
+    images_with_metadata = len(metadata)
+    
+    stats = {
+        'total_images': total_images,
+        'images_with_metadata': images_with_metadata,
+        'images_without_metadata': total_images - images_with_metadata,
+        'catalog_size': len(catalog_embeddings),
+        'version': VERSION
+    }
+    
+    return render_template('admin_panel.html', user=current_user.username, stats=stats)
+
+@app.route('/admin_metadata')
+@login_required
+def admin_metadata():
+    """Administración de metadata de productos - Solo para admin"""
+    if current_user.username != 'admin':
+        flash('Acceso denegado. Solo administradores pueden acceder.')
+        return redirect(url_for('index'))
+    
+    # Obtener imágenes del catálogo y su metadata
+    catalog_images = get_catalog_images()
+    metadata_dict = load_metadata()
+    
+    # Crear lista de imágenes con su metadata vinculada
+    images_data = []
+    for image_filename in catalog_images:
+        image_metadata = link_metadata_to_image(image_filename, metadata_dict)
+        images_data.append({
+            'filename': image_filename,
+            'metadata': image_metadata
+        })
+    
+    # Obtener categorías disponibles del sistema
+    commercial_categories = get_commercial_categories()
+    
+    return render_template('admin_metadata.html', 
+                         user=current_user.username,
+                         images_data=images_data,
+                         commercial_categories=commercial_categories)
+
+@app.route('/admin_metadata/edit/<filename>', methods=['GET', 'POST'])
+@login_required
+def edit_metadata(filename):
+    """Editar metadata de una imagen específica"""
+    if current_user.username != 'admin':
+        flash('Acceso denegado. Solo administradores pueden acceder.')
+        return redirect(url_for('index'))
+    
+    if request.method == 'POST':
+        # Procesar formulario de edición
+        metadata_dict = load_metadata()
+        
+        # Obtener datos del formulario
+        new_metadata = {
+            'nombre': request.form.get('nombre', ''),
+            'categoria': request.form.get('categoria', ''),
+            'tipo_prenda': request.form.get('tipo_prenda', ''),
+            'color': request.form.get('color', ''),
+            'material': request.form.get('material', ''),
+            'talle': request.form.getlist('talle'),  # Lista de talles
+            'precio': float(request.form.get('precio', 0)),
+            'stock': int(request.form.get('stock', 0)),
+            'fecha_ingreso': request.form.get('fecha_ingreso', ''),
+            'notas': request.form.get('notas', '')
+        }
+        
+        # Validar campos
+        validation_errors = validate_metadata_fields(new_metadata)
+        
+        if validation_errors:
+            for error in validation_errors:
+                flash(error, 'error')
+        else:
+            # Guardar metadata
+            metadata_dict[filename] = new_metadata
+            
+            if save_metadata(metadata_dict):
+                flash(f'Metadata actualizada exitosamente para {filename}', 'success')
+                return redirect(url_for('admin_metadata'))
+            else:
+                flash('Error al guardar la metadata', 'error')
+    
+    # Mostrar formulario de edición
+    metadata_dict = load_metadata()
+    image_metadata = link_metadata_to_image(filename, metadata_dict)
+    commercial_categories = get_commercial_categories()
+    
+    # Lista de talles disponibles
+    available_sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', 'Único']
+    
+    return render_template('edit_metadata.html',
+                         user=current_user.username,
+                         filename=filename,
+                         metadata=image_metadata,
+                         commercial_categories=commercial_categories,
+                         available_sizes=available_sizes)
+
+@app.route('/admin_metadata/delete/<filename>', methods=['POST'])
+@login_required
+def delete_metadata(filename):
+    """Eliminar metadata de una imagen (no la imagen física)"""
+    if current_user.username != 'admin':
+        flash('Acceso denegado. Solo administradores pueden acceder.')
+        return redirect(url_for('index'))
+    
+    metadata_dict = load_metadata()
+    
+    if filename in metadata_dict:
+        del metadata_dict[filename]
+        
+        if save_metadata(metadata_dict):
+            flash(f'Metadata eliminada exitosamente para {filename}', 'success')
+        else:
+            flash('Error al eliminar la metadata', 'error')
+    else:
+        flash('La imagen no tiene metadata asociada', 'warning')
+    
+    return redirect(url_for('admin_metadata'))
 
 if __name__ == '__main__':
     if initialize_system():

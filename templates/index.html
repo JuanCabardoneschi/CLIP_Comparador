@@ -276,11 +276,32 @@
             border-radius: 15px;
             padding: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .similar-item:hover {
-            transform: translateY(-5px);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+        }
+
+        .similar-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(79, 70, 229, 0.1), rgba(124, 58, 237, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .similar-item:hover::before {
+            opacity: 1;
         }
 
         .similar-item img {
@@ -701,12 +722,35 @@
                     goodResults.forEach(item => {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'similar-item';
+                        itemDiv.style.cursor = 'pointer';
+                        itemDiv.style.transition = 'transform 0.2s ease, box-shadow 0.2s ease';
+                        
+                        // Hacer click en toda la imagen para ir al detalle
+                        itemDiv.addEventListener('click', () => {
+                            window.open(`/producto/${item.filename}`, '_blank');
+                        });
+                        
+                        // Efecto hover
+                        itemDiv.addEventListener('mouseenter', () => {
+                            itemDiv.style.transform = 'scale(1.05)';
+                            itemDiv.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+                        });
+                        
+                        itemDiv.addEventListener('mouseleave', () => {
+                            itemDiv.style.transform = 'scale(1)';
+                            itemDiv.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+                        });
                         
                         itemDiv.innerHTML = `
                             <img src="/catalogo/${item.filename}" alt="Producto similar">
                             <div style="text-align: center; margin-top: 10px;">
                                 <div class="similarity-score">
                                     ${item.similarity_percent}% similar
+                                </div>
+                                <div style="margin-top: 5px;">
+                                    <small style="color: #6b7280; font-weight: 500;">
+                                        <i>🔍 Click para ver detalles</i>
+                                    </small>
                                 </div>
                             </div>
                         `;

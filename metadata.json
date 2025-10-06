@@ -1,0 +1,906 @@
+{
+  "AMBO EN V NEW GOODY......jpg": {
+    "nombre": "Ambo en v NEW Goody.....",
+    "categoria": "ambo",
+    "tipo_prenda": "Ambo en v NEW Goody.....",
+    "color": "Negro",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 23079.0,
+    "stock": 207,
+    "fecha_ingreso": "2025-09-16",
+    "notas": "Metadata generada automáticamente desde AMBO EN V NEW GOODY......jpg"
+  },
+  "AMBO VESTIR GOODY DAMA (2).jpg": {
+    "nombre": "Ambo Vestir Goody Dama",
+    "categoria": "ambo",
+    "tipo_prenda": "Ambo Vestir Goody Dama",
+    "color": "",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 19499.0,
+    "stock": 36,
+    "fecha_ingreso": "2025-08-03",
+    "notas": "Metadata generada automáticamente desde AMBO VESTIR GOODY DAMA (2).jpg"
+  },
+  "BOINA CALADA (1).jpg": {
+    "nombre": "Boina Calada",
+    "categoria": "gorro",
+    "tipo_prenda": "Boina Calada",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "Único"
+    ],
+    "precio": 7233.0,
+    "stock": 115,
+    "fecha_ingreso": "2025-09-19",
+    "notas": "Metadata generada automáticamente desde BOINA CALADA (1).jpg"
+  },
+  "BUZO FRIZADO (8).jpg": {
+    "nombre": "Buzo Frizado",
+    "categoria": "buzo",
+    "tipo_prenda": "Buzo Frizado",
+    "color": "Negro",
+    "material": "100% Algodón Frizado",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 14051.0,
+    "stock": 212,
+    "fecha_ingreso": "2025-06-22",
+    "notas": "Metadata generada automáticamente desde BUZO FRIZADO (8).jpg"
+  },
+  "CAMISA BOTON OCULTO BLANCA (1).jpg": {
+    "nombre": "Camisa Boton Oculto Blanca",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisa Boton Oculto Blanca",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 15493.0,
+    "stock": 184,
+    "fecha_ingreso": "2025-06-18",
+    "notas": "Metadata generada automáticamente desde CAMISA BOTON OCULTO BLANCA (1).jpg"
+  },
+  "CAMISA BOTON OCULTO NEGRA (2).jpg": {
+    "nombre": "Camisa Boton Oculto Negra",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisa Boton Oculto Negra",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 24250.0,
+    "stock": 30,
+    "fecha_ingreso": "2025-04-20",
+    "notas": "Metadata generada automáticamente desde CAMISA BOTON OCULTO NEGRA (2).jpg"
+  },
+  "CAMISA MOD. HOTELGA 2025 (2).jpg": {
+    "nombre": "Camisa Mod. Hotelga",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisa Mod. Hotelga",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "L"
+    ],
+    "precio": 21046.0,
+    "stock": 218,
+    "fecha_ingreso": "2025-07-28",
+    "notas": "Metadata generada automáticamente desde CAMISA MOD. HOTELGA 2025 (2).jpg"
+  },
+  "CAMISA MODELO HAVANNA BLANCA (5).jpg": {
+    "nombre": "Camisa MODELO Havanna Blanca",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisa MODELO Havanna Blanca",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 14047.0,
+    "stock": 220,
+    "fecha_ingreso": "2025-05-02",
+    "notas": "Metadata generada automáticamente desde CAMISA MODELO HAVANNA BLANCA (5).jpg"
+  },
+  "CAMISA MODELO HAVANNA NEGRA (1).jpg": {
+    "nombre": "Camisa MODELO Havanna Negra",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisa MODELO Havanna Negra",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 10393.0,
+    "stock": 32,
+    "fecha_ingreso": "2025-05-20",
+    "notas": "Metadata generada automáticamente desde CAMISA MODELO HAVANNA NEGRA (1).jpg"
+  },
+  "CAMISA NEW NEGRA (5).jpg": {
+    "nombre": "Camisa NEW Negra",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisa NEW Negra",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 24377.0,
+    "stock": 138,
+    "fecha_ingreso": "2025-09-30",
+    "notas": "Metadata generada automáticamente desde CAMISA NEW NEGRA (5).jpg"
+  },
+  "CAMISA SLIM NEGRA (6).jpg": {
+    "nombre": "Camisa SLIM Negra",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisa SLIM Negra",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 15789.0,
+    "stock": 12,
+    "fecha_ingreso": "2025-08-03",
+    "notas": "Metadata generada automáticamente desde CAMISA SLIM NEGRA (6).jpg"
+  },
+  "CAMISAS NEW BLANCA (24).jpg": {
+    "nombre": "Camisas NEW Blanca",
+    "categoria": "camisa",
+    "tipo_prenda": "Camisas NEW Blanca",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XL"
+    ],
+    "precio": 23921.0,
+    "stock": 217,
+    "fecha_ingreso": "2025-08-08",
+    "notas": "Metadata generada automáticamente desde CAMISAS NEW BLANCA (24).jpg"
+  },
+  "CARDIGAN DAMA (3).jpg": {
+    "nombre": "Cardigan Dama",
+    "categoria": "cardigan",
+    "tipo_prenda": "Cardigan Dama",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 7147.0,
+    "stock": 227,
+    "fecha_ingreso": "2025-08-13",
+    "notas": "Metadata generada automáticamente desde CARDIGAN DAMA (3).jpg"
+  },
+  "CARDIGAN HOMBRE (6).jpg": {
+    "nombre": "Cardigan Hombre",
+    "categoria": "cardigan",
+    "tipo_prenda": "Cardigan Hombre",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XL"
+    ],
+    "precio": 11920.0,
+    "stock": 190,
+    "fecha_ingreso": "2025-05-09",
+    "notas": "Metadata generada automáticamente desde CARDIGAN HOMBRE (6).jpg"
+  },
+  "CASACA MERCURE 2.0  (1).jpg": {
+    "nombre": "Casaca Mercure",
+    "categoria": "casaca",
+    "tipo_prenda": "Casaca Mercure",
+    "color": "",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "L"
+    ],
+    "precio": 16388.0,
+    "stock": 18,
+    "fecha_ingreso": "2025-04-29",
+    "notas": "Metadata generada automáticamente desde CASACA MERCURE 2.0  (1).jpg"
+  },
+  "CASACA SLIM AZUL (14).jpg": {
+    "nombre": "Casaca SLIM Azul",
+    "categoria": "casaca",
+    "tipo_prenda": "Casaca SLIM Azul",
+    "color": "",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "L"
+    ],
+    "precio": 18260.0,
+    "stock": 195,
+    "fecha_ingreso": "2025-05-09",
+    "notas": "Metadata generada automáticamente desde CASACA SLIM AZUL (14).jpg"
+  },
+  "CASACA SLIM BLANCA  (14).jpg": {
+    "nombre": "Casaca SLIM Blanca",
+    "categoria": "casaca",
+    "tipo_prenda": "Casaca SLIM Blanca",
+    "color": "Azul Marino",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "L"
+    ],
+    "precio": 21774.0,
+    "stock": 216,
+    "fecha_ingreso": "2025-09-14",
+    "notas": "Metadata generada automáticamente desde CASACA SLIM BLANCA  (14).jpg"
+  },
+  "CASACA SLIM NEGRA  (8).jpg": {
+    "nombre": "Casaca SLIM Negra",
+    "categoria": "casaca",
+    "tipo_prenda": "Casaca SLIM Negra",
+    "color": "",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "L"
+    ],
+    "precio": 22287.0,
+    "stock": 26,
+    "fecha_ingreso": "2025-07-21",
+    "notas": "Metadata generada automáticamente desde CASACA SLIM NEGRA  (8).jpg"
+  },
+  "CASACA VESTIDO MERCURE (6).jpg": {
+    "nombre": "Casaca Vestido Mercure",
+    "categoria": "casaca",
+    "tipo_prenda": "Casaca Vestido Mercure",
+    "color": "",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "precio": 8869.0,
+    "stock": 297,
+    "fecha_ingreso": "2025-09-29",
+    "notas": "Metadata generada automáticamente desde CASACA VESTIDO MERCURE (6).jpg"
+  },
+  "CHALECO NEGRO DAMA (1).jpg": {
+    "nombre": "Chaleco Negro Dama",
+    "categoria": "chaleco",
+    "tipo_prenda": "Chaleco Negro Dama",
+    "color": "",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XL"
+    ],
+    "precio": 17826.0,
+    "stock": 136,
+    "fecha_ingreso": "2025-09-30",
+    "notas": "Metadata generada automáticamente desde CHALECO NEGRO DAMA (1).jpg"
+  },
+  "CHALECO NEGRO HOMBRE (1).jpg": {
+    "nombre": "Chaleco Negro Hombre",
+    "categoria": "chaleco",
+    "tipo_prenda": "Chaleco Negro Hombre",
+    "color": "Beige",
+    "material": "65% Poliéster, 35% Algodón",
+    "talle": [
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "precio": 24144.0,
+    "stock": 170,
+    "fecha_ingreso": "2025-05-04",
+    "notas": "Metadata generada automáticamente desde CHALECO NEGRO HOMBRE (1).jpg"
+  },
+  "CHAQUETA CUELLO REDONDO BLANCA (3).jpg": {
+    "nombre": "Chaqueta Cuello Redondo Blanca",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Cuello Redondo Blanca",
+    "color": "Blanco",
+    "material": "100% Algodón",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 13086.0,
+    "stock": 161,
+    "fecha_ingreso": "2025-09-22",
+    "notas": "Metadata generada automáticamente desde CHAQUETA CUELLO REDONDO BLANCA (3).jpg"
+  },
+  "CHAQUETA CUELLO REDONDO NEGRA (3).jpg": {
+    "nombre": "Chaqueta Cuello Redondo Negra",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Cuello Redondo Negra",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 21758.0,
+    "stock": 208,
+    "fecha_ingreso": "2025-07-31",
+    "notas": "Metadata generada automáticamente desde CHAQUETA CUELLO REDONDO NEGRA (3).jpg"
+  },
+  "CHAQUETA DAMA PUNTO CARAMELO....jpg": {
+    "nombre": "Chaqueta Dama Punto Caramelo...",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Dama Punto Caramelo...",
+    "color": "Rosa",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 19573.0,
+    "stock": 279,
+    "fecha_ingreso": "2025-06-04",
+    "notas": "Metadata generada automáticamente desde CHAQUETA DAMA PUNTO CARAMELO....jpg"
+  },
+  "CHAQUETA MOD. GIN (1).jpg": {
+    "nombre": "Chaqueta Mod. Gin",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Mod. Gin",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "precio": 12586.0,
+    "stock": 22,
+    "fecha_ingreso": "2025-05-31",
+    "notas": "Metadata generada automáticamente desde CHAQUETA MOD. GIN (1).jpg"
+  },
+  "CHAQUETA MOD. GIN (4).jpg": {
+    "nombre": "Chaqueta Mod. Gin",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Mod. Gin",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 13617.0,
+    "stock": 113,
+    "fecha_ingreso": "2025-07-19",
+    "notas": "Metadata generada automáticamente desde CHAQUETA MOD. GIN (4).jpg"
+  },
+  "CHAQUETA POP NEGRA (5).jpg": {
+    "nombre": "Chaqueta Pop Negra",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Pop Negra",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "L"
+    ],
+    "precio": 10575.0,
+    "stock": 229,
+    "fecha_ingreso": "2025-05-07",
+    "notas": "Metadata generada automáticamente desde CHAQUETA POP NEGRA (5).jpg"
+  },
+  "CHAQUETA SKULL BLANCA (1).jpg": {
+    "nombre": "Chaqueta Skull Blanca",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Skull Blanca",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 15942.0,
+    "stock": 185,
+    "fecha_ingreso": "2025-09-04",
+    "notas": "Metadata generada automáticamente desde CHAQUETA SKULL BLANCA (1).jpg"
+  },
+  "Chaqueta chef Dry- fit combinada (4).jpg": {
+    "nombre": "Chaqueta Chef Dry- Fit Combinada",
+    "categoria": "chaqueta",
+    "tipo_prenda": "Chaqueta Chef Dry- Fit Combinada",
+    "color": "Blanco",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "XL"
+    ],
+    "precio": 19782.0,
+    "stock": 167,
+    "fecha_ingreso": "2025-05-21",
+    "notas": "Metadata generada automáticamente desde Chaqueta chef Dry- fit combinada (4).jpg"
+  },
+  "DELANTA JUMPER TENIS (7).jpg": {
+    "nombre": "Delanta Jumper Tenis",
+    "categoria": "camisa",
+    "tipo_prenda": "Delanta Jumper Tenis",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 22625.0,
+    "stock": 159,
+    "fecha_ingreso": "2025-07-15",
+    "notas": "Metadata generada automáticamente desde DELANTA JUMPER TENIS (7).jpg"
+  },
+  "DELANTAL BOW GOODY.....jpg": {
+    "nombre": "Delantal Bow Goody....",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Bow Goody....",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 5658.0,
+    "stock": 100,
+    "fecha_ingreso": "2025-04-22",
+    "notas": "Metadata generada automáticamente desde DELANTAL BOW GOODY.....jpg"
+  },
+  "DELANTAL JUMPER JEAN (2).jpg": {
+    "nombre": "Delantal Jumper Jean",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Jumper Jean",
+    "color": "",
+    "material": "Denim",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 17667.0,
+    "stock": 274,
+    "fecha_ingreso": "2025-07-17",
+    "notas": "Metadata generada automáticamente desde DELANTAL JUMPER JEAN (2).jpg"
+  },
+  "DELANTAL MODELO THE BOW 3.jpg": {
+    "nombre": "Delantal MODELO The Bow",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal MODELO The Bow",
+    "color": "Gris",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 24462.0,
+    "stock": 222,
+    "fecha_ingreso": "2025-08-06",
+    "notas": "Metadata generada automáticamente desde DELANTAL MODELO THE BOW 3.jpg"
+  },
+  "DELANTAL PECHERA ALPACUNA HABANO (2).jpg": {
+    "nombre": "Delantal Pechera Alpacuna Habano",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Alpacuna Habano",
+    "color": "",
+    "material": "60% Algodón, 40% Poliéster",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 16430.0,
+    "stock": 165,
+    "fecha_ingreso": "2025-05-24",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA ALPACUNA HABANO (2).jpg"
+  },
+  "DELANTAL PECHERA ALPACUNA NEGRO (4).jpg": {
+    "nombre": "Delantal Pechera Alpacuna Negro",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Alpacuna Negro",
+    "color": "",
+    "material": "60% Algodón, 40% Poliéster",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 18442.0,
+    "stock": 10,
+    "fecha_ingreso": "2025-08-13",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA ALPACUNA NEGRO (4).jpg"
+  },
+  "DELANTAL PECHERA BLUE NOTE AZUL (10).jpg": {
+    "nombre": "Delantal Pechera Blue Note Azul",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Blue Note Azul",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 16267.0,
+    "stock": 298,
+    "fecha_ingreso": "2025-07-11",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA BLUE NOTE AZUL (10).jpg"
+  },
+  "DELANTAL PECHERA BLUE NOTE NEGRO (8).jpg": {
+    "nombre": "Delantal Pechera Blue Note Negro",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Blue Note Negro",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "XL"
+    ],
+    "precio": 21378.0,
+    "stock": 223,
+    "fecha_ingreso": "2025-06-01",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA BLUE NOTE NEGRO (8).jpg"
+  },
+  "DELANTAL PECHERA BLUE NOTE VERDE (1).jpg": {
+    "nombre": "Delantal Pechera Blue Note Verde",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Blue Note Verde",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "precio": 5687.0,
+    "stock": 292,
+    "fecha_ingreso": "2025-05-08",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA BLUE NOTE VERDE (1).jpg"
+  },
+  "DELANTAL PECHERA FALDON (2).jpg": {
+    "nombre": "Delantal Pechera Faldon",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Faldon",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 21741.0,
+    "stock": 76,
+    "fecha_ingreso": "2025-06-04",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA FALDON (2).jpg"
+  },
+  "DELANTAL PECHERA INESITA (6).jpg": {
+    "nombre": "Delantal Pechera Inesita",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Inesita",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "XL"
+    ],
+    "precio": 5243.0,
+    "stock": 264,
+    "fecha_ingreso": "2025-07-01",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA INESITA (6).jpg"
+  },
+  "DELANTAL PECHERA IPA JEAN (7).jpg": {
+    "nombre": "Delantal Pechera Ipa Jean",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Ipa Jean",
+    "color": "",
+    "material": "Denim",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 12327.0,
+    "stock": 218,
+    "fecha_ingreso": "2025-09-14",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA IPA JEAN (7).jpg"
+  },
+  "DELANTAL PECHERA JUMPER CON SOLAPA COLOR HABANO (9).jpg": {
+    "nombre": "Delantal Pechera Jumper Con Solapa Color Habano",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Jumper Con Solapa Color Habano",
+    "color": "Marrón",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XL"
+    ],
+    "precio": 6929.0,
+    "stock": 226,
+    "fecha_ingreso": "2025-07-14",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA JUMPER CON SOLAPA COLOR HABANO (9).jpg"
+  },
+  "DELANTAL PECHERA LONETA RAYA ANCH NEGRO CON TOSTADO (4).jpg": {
+    "nombre": "Delantal Pechera Loneta Raya Anch Negro Con Tostado",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Loneta Raya Anch Negro Con Tostado",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "XL"
+    ],
+    "precio": 9581.0,
+    "stock": 90,
+    "fecha_ingreso": "2025-09-04",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA LONETA RAYA ANCH NEGRO CON TOSTADO (4).jpg"
+  },
+  "DELANTAL PECHERA LONETA RAYA FINA (4).jpg": {
+    "nombre": "Delantal Pechera Loneta Raya Fina",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Loneta Raya Fina",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "XL"
+    ],
+    "precio": 17495.0,
+    "stock": 175,
+    "fecha_ingreso": "2025-08-06",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA LONETA RAYA FINA (4).jpg"
+  },
+  "DELANTAL PECHERA MOD. ZARPADO  COLOR HABANO (2).jpg": {
+    "nombre": "Delantal Pechera Mod. Zarpado Color Habano",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Mod. Zarpado Color Habano",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 21008.0,
+    "stock": 136,
+    "fecha_ingreso": "2025-04-17",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA MOD. ZARPADO  COLOR HABANO (2).jpg"
+  },
+  "DELANTAL PECHERA MOD. ZARPADO  COLOR HABANO (6).jpg": {
+    "nombre": "Delantal Pechera Mod. Zarpado Color Habano",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Mod. Zarpado Color Habano",
+    "color": "Beige",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 14669.0,
+    "stock": 285,
+    "fecha_ingreso": "2025-09-17",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA MOD. ZARPADO  COLOR HABANO (6).jpg"
+  },
+  "DELANTAL PECHERA WESTERN VERDE (3).jpg": {
+    "nombre": "Delantal Pechera Western Verde",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Western Verde",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 10443.0,
+    "stock": 146,
+    "fecha_ingreso": "2025-09-01",
+    "notas": "Metadata generada automáticamente desde DELANTAL PECHERA WESTERN VERDE (3).jpg"
+  },
+  "Delantal Pechera Coleccion Punto Camarelo Amarillo Combinado.jpg": {
+    "nombre": "Delantal Pechera Coleccion Punto Camarelo Amarillo Combinado",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Coleccion Punto Camarelo Amarillo Combinado",
+    "color": "Amarillo",
+    "material": "100% Algodón",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 24073.0,
+    "stock": 59,
+    "fecha_ingreso": "2025-09-10",
+    "notas": "Metadata generada automáticamente desde Delantal Pechera Coleccion Punto Camarelo Amarillo Combinado.jpg"
+  },
+  "Delantal Pechera Coleccion Punto Caramelo Combinado.jpg": {
+    "nombre": "Delantal Pechera Coleccion Punto Caramelo Combinado",
+    "categoria": "delantal",
+    "tipo_prenda": "Delantal Pechera Coleccion Punto Caramelo Combinado",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "L",
+      "XL"
+    ],
+    "precio": 21296.0,
+    "stock": 84,
+    "fecha_ingreso": "2025-09-26",
+    "notas": "Metadata generada automáticamente desde Delantal Pechera Coleccion Punto Caramelo Combinado.jpg"
+  },
+  "GOODY - JUNI0 2025-0238.jpg": {
+    "nombre": "Goody - Juni0 2025-",
+    "categoria": "camisa",
+    "tipo_prenda": "Goody - Juni0 2025-",
+    "color": "Marrón",
+    "material": "100% Algodón",
+    "talle": [
+      "S",
+      "M",
+      "L"
+    ],
+    "precio": 5050.0,
+    "stock": 275,
+    "fecha_ingreso": "2025-07-11",
+    "notas": "Metadata generada automáticamente desde GOODY - JUNI0 2025-0238.jpg"
+  },
+  "GOODY - JUNI0 2025-0454.jpg": {
+    "nombre": "Goody - Juni0 2025-",
+    "categoria": "camisa",
+    "tipo_prenda": "Goody - Juni0 2025-",
+    "color": "Gris",
+    "material": "100% Algodón",
+    "talle": [
+      "L",
+      "XL",
+      "XXL"
+    ],
+    "precio": 17585.0,
+    "stock": 165,
+    "fecha_ingreso": "2025-07-23",
+    "notas": "Metadata generada automáticamente desde GOODY - JUNI0 2025-0454.jpg"
+  },
+  "GOODY - JUNI0 2025-0521.jpg": {
+    "nombre": "Goody - Juni0 2025-",
+    "categoria": "camisa",
+    "tipo_prenda": "Goody - Juni0 2025-",
+    "color": "Blanco",
+    "material": "100% Algodón",
+    "talle": [
+      "M",
+      "L",
+      "XXL"
+    ],
+    "precio": 22497.0,
+    "stock": 276,
+    "fecha_ingreso": "2025-06-19",
+    "notas": "Metadata generada automáticamente desde GOODY - JUNI0 2025-0521.jpg"
+  },
+  "GORRA CUP NEGRA (1).jpg": {
+    "nombre": "Gorra Cup Negra",
+    "categoria": "camisa",
+    "tipo_prenda": "Gorra Cup Negra",
+    "color": "Azul Marino",
+    "material": "100% Algodón",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 9637.0,
+    "stock": 85,
+    "fecha_ingreso": "2025-08-18",
+    "notas": "Metadata generada automáticamente desde GORRA CUP NEGRA (1).jpg"
+  },
+  "GORRO BACCIO NEGRO (2).jpg": {
+    "nombre": "Gorro Baccio Negro",
+    "categoria": "gorro",
+    "tipo_prenda": "Gorro Baccio Negro",
+    "color": "",
+    "material": "100% Algodón",
+    "talle": [
+      "Único"
+    ],
+    "precio": 10678.0,
+    "stock": 22,
+    "fecha_ingreso": "2025-06-12",
+    "notas": "Metadata generada automáticamente desde GORRO BACCIO NEGRO (2).jpg"
+  },
+  "MEDIO DELANTAL AZUL ALPACUNA (2).jpg": {
+    "nombre": "Medio Delantal Azul Alpacuna",
+    "categoria": "delantal",
+    "tipo_prenda": "Medio Delantal Azul Alpacuna",
+    "color": "Azul Marino",
+    "material": "60% Algodón, 40% Poliéster",
+    "talle": [
+      "XS",
+      "S",
+      "M"
+    ],
+    "precio": 13811.0,
+    "stock": 110,
+    "fecha_ingreso": "2025-09-16",
+    "notas": "Metadata generada automáticamente desde MEDIO DELANTAL AZUL ALPACUNA (2).jpg"
+  },
+  "ZAPATO PICCADILLY CON TACO (2).jpg": {
+    "nombre": "Zapato Piccadilly Con Taco",
+    "categoria": "zapato dama",
+    "tipo_prenda": "Zapato Piccadilly Con Taco",
+    "color": "Negro",
+    "material": "Cuero sintético",
+    "talle": [
+      "Único"
+    ],
+    "precio": 24484.0,
+    "stock": 39,
+    "fecha_ingreso": "2025-06-24",
+    "notas": "Metadata generada automáticamente desde ZAPATO PICCADILLY CON TACO (2).jpg"
+  },
+  "ZUECO SOFT WORKS BB61 (1).jpg": {
+    "nombre": "Zueco Soft Works bb",
+    "categoria": "zueco",
+    "tipo_prenda": "Zueco Soft Works bb",
+    "color": "",
+    "material": "EVA",
+    "talle": [
+      "Único"
+    ],
+    "precio": 13288.0,
+    "stock": 288,
+    "fecha_ingreso": "2025-06-18",
+    "notas": "Metadata generada automáticamente desde ZUECO SOFT WORKS BB61 (1).jpg"
+  }
+}
