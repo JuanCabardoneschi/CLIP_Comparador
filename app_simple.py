@@ -42,9 +42,11 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.8"
+VERSION = "3.9.9"
 BUILD_DATE = "2025-10-06"
 CHANGES_LOG = {
+    "3.9.9": ("FORCE COMPLETE DEPLOY: Rebuild completo Railway - asegurar "
+              "que use código actualizado con mejoras de detección de hallucinations"),
     "3.9.8": ("FORCE DEPLOY: Forzar redeploy Railway con últimas mejoras "
               "en get_general_image_description() y classify_query_image()"),
     "3.9.7": ("FIX CLIP HALLUCINATIONS: Reordenados prompts priorizando "
@@ -432,10 +434,13 @@ def classify_query_image(image):
     1. CLIP describe libremente lo que ve (sin categorías forzadas)
     2. Analizamos si esa descripción coincide con nuestros productos comerciales
     3. Si coincide -> clasificación específica, si no -> informar descripción libre
+    
+    ⚠️ RAILWAY DEPLOY v3.9.9 - FORCE REBUILD COMPLETO ⚠️
     """
     global model, preprocess, device
     try:
-        print(f"🚀 INICIANDO classify_query_image() - DEBUG RAILWAY")
+        print(f"🚀🚀🚀 INICIANDO classify_query_image() v3.9.9 - RAILWAY FORCE DEPLOY 🚀🚀🚀")
+        print(f"🔥 ESTA ES LA VERSIÓN ACTUALIZADA CON FIX HALLUCINATIONS 🔥")
         
         # Determinar si es un path o un objeto Image
         if isinstance(image, str):
@@ -448,7 +453,7 @@ def classify_query_image(image):
         print(f"📷 Imagen preparada: {image.size}")
         
         # PASO 1: Obtener descripción LIBRE de CLIP (sin limitaciones)
-        print(f"🔍 PASO 1: Llamando get_general_image_description()")
+        print(f"🔍 PASO 1: Llamando get_general_image_description() VERSIÓN ACTUALIZADA")
         free_description, free_confidence = get_general_image_description(image)
         print(f"🔍 CLIP descripción libre: {free_description}")
         print(f"📊 Confianza descripción libre: {free_confidence:.3f} ({free_confidence*100:.1f}%)")
@@ -499,12 +504,13 @@ def classify_query_image(image):
         # PASO 4: No es categoría comercial - usar descripción libre de CLIP
         print(f"🚫 Descripción libre NO coincide con categorías comerciales")
         print(f"🔄 RETORNANDO: NO_COMERCIAL:{free_description}")
+        print(f"🎯 ESTE DEBE SER EL RESULTADO PARA VEHÍCULOS - v3.9.9")
         return f"NO_COMERCIAL:{free_description}", free_confidence
             
     except Exception as e:
-        print(f"❌ ERROR CRÍTICO en classify_query_image(): {e}")
+        print(f"❌ ERROR CRÍTICO en classify_query_image() v3.9.9: {e}")
         import traceback
-        print(f"🔥 TRACEBACK: {traceback.format_exc()}")
+        print(f"🔥 TRACEBACK v3.9.9: {traceback.format_exc()}")
         return None, 0.0
 
 # ==================== RUTAS DE AUTENTICACIÓN ====================

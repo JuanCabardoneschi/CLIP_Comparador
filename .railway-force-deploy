@@ -1,0 +1,10 @@
+FORCE DEPLOY RAILWAY v3.9.8
+=========================
+
+Railway está usando código obsoleto que no incluye las mejoras críticas:
+- get_general_image_description() con prompts reordenados
+- classify_query_image() con logs de debug detallados
+- Detección correcta de vehículos como NO_COMERCIAL
+
+Este archivo fuerza un rebuild completo del sistema.
+Timestamp: 2025-10-06 13:15:00
