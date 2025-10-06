@@ -186,22 +186,37 @@
 
         .status-section {
             background: #f8fafc;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 30px;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 15px;
         }
 
         .status-item {
             display: flex;
+            flex-direction: row;
             align-items: center;
-            margin-bottom: 10px;
+            justify-content: flex-start;
+            min-width: 100px;
+            min-height: 35px;
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(79,70,229,0.03);
+            margin-bottom: 0;
+            padding: 8px 12px;
+            font-size: 0.75em;
         }
 
         .status-indicator {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            margin-right: 10px;
+            margin-bottom: 0;
+            margin-right: 6px;
         }
 
         .status-online {
@@ -324,7 +339,6 @@
         <div class="main-content">
             <!-- Sección de estado del sistema -->
             <div class="status-section">
-                <h3>📊 Estado del Sistema</h3>
                 <div class="status-item">
                     <div class="status-indicator status-online"></div>
                     <span>Versión: <span id="version-text">Verificando...</span></span>
@@ -667,7 +681,19 @@
             const similarImagesContainer = document.getElementById('similar-images');
             similarImagesContainer.innerHTML = '';
 
-            if (result.similar_images && result.similar_images.length > 0) {
+            // Verificar si hay un mensaje amigable para categorías no comercializadas
+            if (result.friendly_message && result.category_not_available) {
+                similarImagesContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 15px; border: 2px solid #d1d5db;">
+                        <div style="font-size: 2.5em; margin-bottom: 20px;">🛍️</div>
+                        <h3 style="color: #374151; margin-bottom: 15px; font-weight: 600;">¡Gracias por tu interés!</h3>
+                        <p style="color: #6b7280; line-height: 1.6; max-width: 600px; margin: 0 auto;">${result.friendly_message}</p>
+                        <div style="margin-top: 25px; padding: 15px; background: white; border-radius: 10px; border-left: 4px solid #4f46e5;">
+                            <p style="color: #4f46e5; font-weight: 500; margin: 0;">💡 Tip: Puedes subir una imagen de cualquiera de nuestros productos para encontrar opciones similares</p>
+                        </div>
+                    </div>
+                `;
+            } else if (result.similar_images && result.similar_images.length > 0) {
                 // Mostrar TODOS los resultados que envía el backend (sin filtro de umbral)
                 const goodResults = result.similar_images; // Eliminado filtro > 60%
                 

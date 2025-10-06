@@ -1,0 +1,27 @@
+[flake8]
+# Configuración permisiva para CLIP Comparador
+max-line-length = 150
+extend-ignore = 
+    E501,   # line too long
+    W503,   # line break before binary operator
+    E203,   # whitespace before ':'
+    W391,   # blank line at end of file
+    E302,   # expected 2 blank lines
+    E305,   # expected 2 blank lines after class or function definition
+    E722,   # do not use bare 'except'
+    E741,   # ambiguous variable name
+    W291    # trailing whitespace
+
+per-file-ignores = 
+    app_simple.py:E501,E302,E305,W291,E722,E741
+    config/categories.py:E501
+
+# Ignorar archivos específicos
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    *.egg-info,
+    build,
+    dist

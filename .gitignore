@@ -3,6 +3,13 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Railway config files that cause VS Code issues
+.railway-env
+*.railway-env
+
+# VS Code settings (keep project-specific settings)
+# .vscode/ folder will be tracked for project configuration
+
 # C extensions
 *.so
 

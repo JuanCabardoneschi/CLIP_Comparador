@@ -5,9 +5,15 @@ Sistema de búsqueda visual inteligente con modelo RN50 optimizado
 
 import os
 import sys
-import json
 import warnings
+warnings.filterwarnings("ignore")
 
+# Importaciones optimizadas para 512MB RAM - LAZY LOADING
+import os
+import sys
+import json
+from datetime import datetime
+import warnings
 warnings.filterwarnings("ignore")
 
 # Variables globales para lazy loading
@@ -15,72 +21,50 @@ model = None
 preprocess = None
 device = None
 
-
 def lazy_import_heavy_deps():
     """Importar dependencias pesadas solo cuando sea necesario"""
     global torch, clip, np, Image, Flask, render_template, request, jsonify
     global send_from_directory, redirect, url_for, flash, session
-    global LoginManager, UserMixin, login_user, login_required
-    global logout_user, current_user, Limiter, get_remote_address
-
+    global LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+    global Limiter, get_remote_address
+    
     try:
         import torch
-        import clip
+        import clip  
         import numpy as np
         from PIL import Image
-        from flask import (Flask, render_template, request, jsonify,
-                           send_from_directory, redirect, url_for, flash,
-                           session)
-        from flask_login import (LoginManager, UserMixin, login_user,
-                                 login_required, logout_user, current_user)
+        from flask import Flask, render_template, request, jsonify, send_from_directory, redirect, url_for, flash, session
+        from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
         from flask_limiter import Limiter
         from flask_limiter.util import get_remote_address
-
+        
         return True
     except ImportError:
         return False
-
 
 # 🏷️ Sistema de Versioning Automático
 VERSION = "3.9.6"
 BUILD_DATE = "2025-10-02"
 CHANGES_LOG = {
-    "3.9.6": ("FIX EXIF: Corregir import error + detectión automática "
-              "por dimensiones como fallback para móviles"),
-    "3.9.5": ("DEBUG: Logs detallados para diagnosticar problema "
-              "de orientación EXIF en móviles"),
-    "3.9.4": ("FIX EXIF: Evitar doble corrección orientación - solo aplicar "
-              "en archivos, no en objetos Image ya procesados"),
-    "3.9.3": ("NUEVA FUNCIONALIDAD: Corrección automática de orientación "
-              "EXIF para imágenes de móviles (rotación 90°)"),
-    "3.9.2": ("FIX RUTAS IMÁGENES: Normalizar separadores \\ a / antes "
-              "de basename() para compatibilidad Linux/Windows"),
-    "3.9.1": ("FIX COMPLETO JSON: Convertir float32 en calculate_similarity "
-              "y results para evitar errores serialización"),
-    "3.9.0": ("FIX JSON SERIALIZATION: Convertir float32 PyTorch a float "
-              "Python para evitar error 'not JSON serializable'"),
-    "3.8.9": ("FIX CRÍTICO CATEGORÍAS: Corregido bucle classifications + "
-              "generadas product_classifications.json para detección "
-              "de productos"),
-    "3.8.8": ("FIX DETECCIÓN CATEGORÍAS: Mejorada lógica para detectar "
-              "'camisa' en 'camisa con botones y cuello'"),
-    "3.8.7": ("FIX COMPATIBILIDAD: Removido half precision problemático + "
-              "estado de modelo corregido"),
-    "3.8.6": ("CORRECCIÓN CRÍTICA: RN50 (244MB) en lugar de ViT-B/32 "
-              "(338MB) - Error de tamaños de modelos"),
-    "3.8.5": ("OPTIMIZACIÓN MEMORIA: Sistema optimizado para 512MB RAM "
-              "con lazy loading y garbage collection"),
-    "3.8.0": ("DETECCIÓN AMPLIADA: Agregadas categorías no comercializadas "
-              "para correcta identificación"),
-    "3.7.0": ("ENFOQUE SIMPLIFICADO: Verificación genérica de categorías "
-              "comercializadas vs no comercializadas")
+    "3.9.6": "FIX EXIF: Corregir import error + detectión automática por dimensiones como fallback para móviles",
+    "3.9.5": "DEBUG: Logs detallados para diagnosticar problema de orientación EXIF en móviles",
+    "3.9.4": "FIX EXIF: Evitar doble corrección orientación - solo aplicar en archivos, no en objetos Image ya procesados",
+    "3.9.3": "NUEVA FUNCIONALIDAD: Corrección automática de orientación EXIF para imágenes de móviles (rotación 90°)",
+    "3.9.2": "FIX RUTAS IMÁGENES: Normalizar separadores \\ a / antes de basename() para compatibilidad Linux/Windows",
+    "3.9.1": "FIX COMPLETO JSON: Convertir float32 en calculate_similarity y results para evitar errores serialización",
+    "3.9.0": "FIX JSON SERIALIZATION: Convertir float32 PyTorch a float Python para evitar error 'not JSON serializable'",
+    "3.8.9": "FIX CRÍTICO CATEGORÍAS: Corregido bucle classifications + generadas product_classifications.json para detección de productos",
+    "3.8.8": "FIX DETECCIÓN CATEGORÍAS: Mejorada lógica para detectar 'camisa' en 'camisa con botones y cuello'",
+    "3.8.7": "FIX COMPATIBILIDAD: Removido half precision problemático + estado de modelo corregido",
+    "3.8.6": "CORRECCIÓN CRÍTICA: RN50 (244MB) en lugar de ViT-B/32 (338MB) - Error de tamaños de modelos",
+    "3.8.5": "OPTIMIZACIÓN MEMORIA: Sistema optimizado para 512MB RAM con lazy loading y garbage collection",
+    "3.8.0": "DETECCIÓN AMPLIADA: Agregadas categorías no comercializadas para correcta identificación",
+    "3.7.0": "ENFOQUE SIMPLIFICADO: Verificación genérica de categorías comercializadas vs no comercializadas"
 }
-
 
 def show_version_info():
     """Mostrar información de versión"""
     pass
-
 
 # Configuración de la aplicación Flask (lazy loading de dependencias)
 def create_app():
@@ -90,12 +74,10 @@ def create_app():
     
     app = Flask(__name__)
     app.config['CATALOGO_FOLDER'] = 'catalogo'
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max
-    app.config['SECRET_KEY'] = os.environ.get(
-        'SECRET_KEY', 'clip-demo-secret-key-2025')
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'clip-demo-secret-key-2025')
     
     return app
-
 
 # Crear app
 app = create_app()
@@ -120,12 +102,10 @@ DEMO_USERS = {
     'admin': 'clipadmin2025'
 }
 
-
 class User(UserMixin):
     def __init__(self, username):
         self.id = username
         self.username = username
-
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -133,13 +113,11 @@ def load_user(user_id):
         return User(user_id)
     return None
 
-
 # Variables globales
 model = None
 preprocess = None
 device = None
 catalog_embeddings = {}
-
 
 def ensure_model_loaded():
     """Asegurar que el modelo esté cargado (lazy loading)"""
@@ -147,7 +125,6 @@ def ensure_model_loaded():
     if model is None:
         load_clip_model()
     return model is not None
-
 
 def load_clip_model():
     """Cargar el modelo CLIP con lazy loading y optimizaciones de memoria"""
@@ -174,11 +151,10 @@ def load_clip_model():
         
         return model, preprocess
         
-    except Exception:
+    except Exception as e:
         import traceback
         traceback.print_exc()
         return None, None
-
 
 def get_image_embedding(image_input):
     """Generar embedding para una imagen - acepta path o objeto PIL Image"""
@@ -192,8 +168,7 @@ def get_image_embedding(image_input):
         # Determinar si es un path o un objeto Image
         if isinstance(image_input, str):
             image = Image.open(image_input)
-            # Corregir orientación EXIF solo para archivos
-            # (no para objetos ya procesados)
+            # Corregir orientación EXIF solo para archivos (no para objetos ya procesados)
             image = fix_image_orientation(image)
         else:
             image = image_input
@@ -214,17 +189,14 @@ def get_image_embedding(image_input):
         
         # Generar embedding con optimizaciones de memoria EXTREMAS
         with torch.no_grad():
-            # Asegurar compatibilidad de tipos
-            # siempre usar float32 para estabilidad
-            image_tensor = image_tensor.float()  # Forzar float32
+            # Asegurar compatibilidad de tipos - siempre usar float32 para estabilidad
+            image_tensor = image_tensor.float()  # Forzar float32 para compatibilidad
             
             image_features = model.encode_image(image_tensor)
-            image_features = image_features / image_features.norm(
-                dim=-1, keepdim=True)
+            image_features = image_features / image_features.norm(dim=-1, keepdim=True)
             
             # Liberar tensor inmediatamente
-            embedding = image_features.cpu().numpy().flatten().astype(
-                np.float32)
+            embedding = image_features.cpu().numpy().flatten().astype(np.float32)
             
             # Limpiar todo inmediatamente
             del image_tensor, image_features
@@ -234,12 +206,11 @@ def get_image_embedding(image_input):
         
         return embedding
         
-    except Exception:
+    except Exception as e:
         # Limpiar memoria en caso de error
         import gc
         gc.collect()
         return None
-
 
 def load_catalog_embeddings():
     """Cargar embeddings del catálogo desde archivo"""
@@ -251,8 +222,7 @@ def load_catalog_embeddings():
         
         catalog_embeddings = {}
         for filename, embedding_list in embeddings_data.items():
-            catalog_embeddings[filename] = np.array(
-                embedding_list, dtype=np.float32)
+            catalog_embeddings[filename] = np.array(embedding_list, dtype=np.float32)
         
         return True
     except FileNotFoundError:
@@ -260,17 +230,13 @@ def load_catalog_embeddings():
     except Exception:
         return False
 
-
 def calculate_similarity(embedding1, embedding2):
     """Calcular similitud coseno entre dos embeddings"""
-    similarity = (np.dot(embedding1, embedding2) /
-                  (np.linalg.norm(embedding1) * np.linalg.norm(embedding2)))
-    return float(similarity)  # Convertir a float Python para JSON
-
+    similarity = np.dot(embedding1, embedding2) / (np.linalg.norm(embedding1) * np.linalg.norm(embedding2))
+    return float(similarity)  # Convertir a float Python para JSON serialization
 
 def fix_image_orientation(image):
-    """Corregir orientación de imagen basándose en datos EXIF
-    (especialmente para móviles)"""
+    """Corregir orientación de imagen basándose en datos EXIF (especialmente para móviles)"""
     try:
         # Método 1: Intentar usar EXIF
         try:
@@ -291,8 +257,7 @@ def fix_image_orientation(image):
         
         # Método 2: Detección automática por dimensiones (FALLBACK)
         width, height = image.size
-        # Imagen grande y horizontal mal orientada
-        if width > height and width > 3000:
+        if width > height and width > 3000:  # Imagen grande y horizontal mal orientada
             image = image.rotate(90, expand=True)
             
     except Exception:
@@ -300,17 +265,14 @@ def fix_image_orientation(image):
     
     return image
 
-
 def classify_query_image(image_input):
-    """Clasificar imagen usando CLIP text embeddings
-    - acepta path o objeto PIL Image"""
+    """Clasificar imagen usando CLIP text embeddings - acepta path o objeto PIL Image"""
     global model, preprocess, device
     try:
         # Determinar si es un path o un objeto Image
         if isinstance(image_input, str):
             image = Image.open(image_input)
-            # Corregir orientación EXIF solo para archivos  # noqa: E501
-            # (no para objetos ya procesados)
+            # Corregir orientación EXIF solo para archivos (no para objetos ya procesados)
             image = fix_image_orientation(image)
         else:
             image = image_input
@@ -319,27 +281,27 @@ def classify_query_image(image_input):
             
         image_tensor = preprocess(image).unsqueeze(0).to(device)
         
-        # Categorías UNIFICADAS - CLIP categories for classification  # noqa: E501
+        # Categorías UNIFICADAS - 12 CATEGORÍAS DEL SISTEMA + CATEGORÍAS NO COMERCIALIZADAS
         categories = [
             # ===== CATEGORÍAS COMERCIALIZADAS POR GOODY =====
-            "buzo cerrado con capucha, sudadera gruesa de trabajo, hoodie with zipper",  # noqa: E501
-            "camisa con botones y cuello, blusa formal de trabajo, dress shirt with collar",  # noqa: E501
-            "gorro de chef, gorra profesional con visera, work cap with brim, boina calada",  # noqa: E501
-            "chaqueta cerrada profesional, jacket with zipper, campera de trabajo",  # noqa: E501
-            "delantal de trabajo con pechera, mandil profesional con tirantes, apron with straps green",  # noqa: E501
-            "ambo médico scrubs sanitario, uniforme hospitalario, medical uniform set",  # noqa: E501
-            "casaca de chef blanca, chaqueta de cocina profesional, chef jacket with buttons",  # noqa: E501
-            "zapato cerrado profesional, zueco de trabajo, calzado antideslizante, work shoes",  # noqa: E501
-            "cardigan abierto con botones, chaleco sin mangas, vest without sleeves",  # noqa: E501
-            "remera polo casual, camiseta deportiva sin botones, t-shirt casual cotton",  # noqa: E501
-            "buzo frizado de trabajo, sudadera cerrada profesional, thick work sweatshirt",  # noqa: E501
-            "conjunto deportivo casual, ropa de gimnasio, activewear clothing set",  # noqa: E501
-            # ===== CATEGORÍAS NO COMERCIALIZADAS (PARA DETECCIÓN Y RECHAZO) =====  # noqa: E501
+            "buzo cerrado con capucha, sudadera gruesa de trabajo, hoodie with zipper",
+            "camisa con botones y cuello, blusa formal de trabajo, dress shirt with collar",
+            "gorro de chef, gorra profesional con visera, work cap with brim, boina calada",
+            "chaqueta cerrada profesional, jacket with zipper, campera de trabajo",
+            "delantal de trabajo con pechera, mandil profesional con tirantes, apron with straps green",
+            "ambo médico scrubs sanitario, uniforme hospitalario, medical uniform set",
+            "casaca de chef blanca, chaqueta de cocina profesional, chef jacket with buttons",
+            "zapato cerrado profesional, zueco de trabajo, calzado antideslizante, work shoes",
+            "cardigan abierto con botones, chaleco sin mangas, vest without sleeves",
+            "remera polo casual, camiseta deportiva sin botones, t-shirt casual cotton",
+            "buzo frizado de trabajo, sudadera cerrada profesional, thick work sweatshirt",
+            "conjunto deportivo casual, ropa de gimnasio, activewear clothing set",
+            # ===== CATEGORÍAS NO COMERCIALIZADAS (PARA DETECCIÓN Y RECHAZO) =====
             "pantalón largo, jean de trabajo, pants trousers long legs black",
             "short bermuda corto, pantalón corto de verano, summer shorts",
             "falda de vestir, pollera profesional, skirt for women",
             "vestido de trabajo, dress for women, ropa femenina formal",
-            "chaqueta de punto abierta, cardigan profesional, open front sweater"  # noqa: E501
+            "chaqueta de punto abierta, cardigan profesional, open front sweater"
         ]
         
         # Tokenizar categorías
@@ -992,6 +954,6 @@ if __name__ == '__main__':
     if initialize_system():
         # Puerto dinámico para despliegue en cloud (Render, Heroku, etc.)
         port = int(os.environ.get('PORT', 5000))
-        app.run(host='0.0.0.0', port=port, debug=True)
+        app.run(host='0.0.0.0', port=port, debug=False)
     else:
         sys.exit(1)

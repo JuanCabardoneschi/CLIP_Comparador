@@ -1,37 +1,37 @@
-FROM python:3.10-slim
+# Dockerfile optimizado para Railway
+FROM python:3.11-slim
 
+# Configurar variables de entorno
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=False
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Crear directorio de trabajo
 WORKDIR /app
 
-# Install system dependencies for Azure
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
-    curl \
+    wget \
+    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better Docker caching
-COPY requirements.txt .
+# Copiar requirements y instalar dependencias Python
+COPY requirements-railway.txt .
+RUN pip install --no-cache-dir -r requirements-railway.txt
 
-# Install Python dependencies with Azure optimizations
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Copy application code and static files
+# Copiar el código de la aplicación
 COPY . .
 
-# Create necessary directories
-RUN mkdir -p uploads templates static catalogo
+# Generar embeddings si no existen
+RUN if [ ! -f "catalogo/embeddings.json" ]; then \
+        echo "Generando embeddings..." && \
+        python generate_embeddings.py; \
+    fi
 
-# Set Azure-specific environment variables
-ENV PORT=8000
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+# Exponer puerto
+EXPOSE $PORT
 
-# Expose port for Azure Container Instances
-EXPOSE 8000
-
-# Health check for Azure
-HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8000/status || exit 1
-
-# Start command optimized for Azure
-CMD ["python", "app_simple.py"]
+# Comando de inicio
+CMD gunicorn --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120 --max-requests 1000 --preload app_railway:app
