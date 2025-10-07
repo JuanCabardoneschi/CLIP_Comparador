@@ -53,8 +53,8 @@ def get_image_embedding(image_path, model, preprocess, device):
 def generate_catalog_embeddings():
     """Genera embeddings para todo el catálogo"""
     
-    print("🚀 Iniciando generación de embeddings v3.9.19...")
-    print("🔥 UPGRADE: Modelos ViT-B/16 → ViT-B/32 → RN50 (fallback)")
+    print("🚀 Iniciando generación de embeddings v3.9.21...")
+    print("🔥 UPGRADE: Modelos ViT-L/14 → ViT-L/14@336px → ViT-B/16 → ViT-B/32 → RN50")
     
     # Configurar dispositivo
     device = "cpu"  # Forzar CPU para compatibilidad
@@ -62,7 +62,9 @@ def generate_catalog_embeddings():
     
     # Cargar modelo CLIP con fallback inteligente
     models_to_try = [
-        ("ViT-B/16", "Mayor precisión visual"),
+        ("ViT-L/14", "MÁXIMA precisión visual"),
+        ("ViT-L/14@336px", "MÁXIMA precisión + alta resolución"),
+        ("ViT-B/16", "Alta precisión visual"),
         ("ViT-B/32", "Buena precisión visual"),  
         ("RN50", "Modelo de respaldo")
     ]
