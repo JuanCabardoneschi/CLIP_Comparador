@@ -53,16 +53,44 @@ def get_image_embedding(image_path, model, preprocess, device):
 def generate_catalog_embeddings():
     """Genera embeddings para todo el catálogo"""
     
-    print("🚀 Iniciando generación de embeddings...")
+    print("🚀 Iniciando generación de embeddings v3.9.19...")
+    print("🔥 UPGRADE: Modelos ViT-B/16 → ViT-B/32 → RN50 (fallback)")
     
     # Configurar dispositivo
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    device = "cpu"  # Forzar CPU para compatibilidad
     print(f"🔧 Dispositivo: {device}")
     
-    # Cargar modelo CLIP
-    print("🔄 Cargando modelo CLIP (RN50 - 244MB CONFIRMADO)...")
-    model, preprocess = clip.load("RN50", device=device)
-    print("✅ Modelo CLIP cargado")
+    # Cargar modelo CLIP con fallback inteligente
+    models_to_try = [
+        ("ViT-B/16", "Mayor precisión visual"),
+        ("ViT-B/32", "Buena precisión visual"),  
+        ("RN50", "Modelo de respaldo")
+    ]
+    
+    model = None
+    preprocess = None
+    model_name_used = None
+    
+    for model_name, description in models_to_try:
+        try:
+            print(f"🔄 Intentando cargar modelo: {model_name} ({description})")
+            model, preprocess = clip.load(model_name, device=device)
+            
+            if model is not None:
+                print(f"✅ Modelo {model_name} cargado exitosamente")
+                model_name_used = model_name
+                break
+                
+        except Exception as e:
+            print(f"❌ Error cargando {model_name}: {e}")
+            continue
+    
+    if model is None:
+        print(f"❌ No se pudo cargar ningún modelo CLIP")
+        return False
+    
+    print(f"🎯 Usando modelo: {model_name_used}")
+    model.eval()
     
     # Directorio del catálogo
     catalog_dir = Path("catalogo")
