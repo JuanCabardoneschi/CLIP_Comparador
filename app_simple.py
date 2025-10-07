@@ -42,9 +42,14 @@ def lazy_import_heavy_deps():
 
 
 # 🏷️ Sistema de Versioning Automático
-VERSION = "3.9.21"
+VERSION = "3.9.22"
 BUILD_DATE = "2025-10-07"
 CHANGES_LOG = {
+    "3.9.22": ("FIX DETECCIÓN COLORES: Eliminados colores específicos de categorías "
+               "CLIP (ej: 'gorro de chef blanco' → 'gorro profesional'). Permite "
+               "detección correcta independiente del color. Corrige clasificación "
+               "errónea de gorras moradas como 'blancas'. Sistema más flexible y "
+               "preciso para variaciones de color en productos."),
     "3.9.21": ("UPGRADE MÁXIMA PRECISIÓN ViT-L/14: Implementado modelo de máxima "
                "precisión ViT-L/14 (938MB, 1024-dim) como primera opción. Mantiene "
                "compatibilidad total con embeddings existentes. Fallback inteligente: "

@@ -53,8 +53,8 @@ def get_image_embedding(image_path, model, preprocess, device):
 def generate_catalog_embeddings():
     """Genera embeddings para todo el catálogo"""
     
-    print("🚀 Iniciando generación de embeddings v3.9.21...")
-    print("🔥 UPGRADE: Modelos ViT-L/14 → ViT-L/14@336px → ViT-B/16 → ViT-B/32 → RN50")
+    print("🚀 Iniciando generación de embeddings v3.9.22...")
+    print("🔥 UPGRADE: ViT-L/14 + Categorías Neutrales (sin colores específicos)")
     
     # Configurar dispositivo
     device = "cpu"  # Forzar CPU para compatibilidad
